@@ -1,0 +1,45 @@
+.sidebar {
+  width: 240px;
+  flex-shrink: 0; /* Evita que la barra se encoja */
+  padding: 1.5rem 1rem;
+  background-color: var(--color-white);
+  border-right: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  box-sizing: border-box; /* Asegura que el padding no añada anchura/altura */
+}
+
+.brand {
+  margin: 0 0 2rem 0;
+  font-size: 1.8rem;
+  color: var(--color-accent);
+  text-align: center;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.navLink {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  border-radius: 6px;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.navLink:hover {
+  background-color: var(--color-background);
+}
+
+.navLinkActive {
+  background-color: var(--color-accent);
+  color: var(--color-white);
+  font-weight: 500;
+}

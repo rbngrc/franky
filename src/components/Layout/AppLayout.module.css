@@ -1,0 +1,17 @@
+.appLayout {
+  display: flex;
+  height: 100vh;
+}
+
+.mainContent {
+  flex-grow: 1; /* Ocupa el resto del espacio */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.pageContent {
+  flex-grow: 1;
+  padding: 2rem;
+  overflow-y: auto; /* Permite scroll si el contenido es muy largo */
+}
