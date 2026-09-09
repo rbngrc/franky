@@ -1,50 +1,53 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  --color-white: #FFFFFF;
-  --color-primary: #36DCB4;   /* Verde menta */
-  --color-secondary: #379CC8; /* Azul claro */
-  --color-accent: #3D4EE2;    /* Azul/púrpura intenso */
-  --color-neutral: #A8C9BE;   /* Verde grisáceo claro */
+  --franky-blue: #1565C0;
+  --franky-blue-dark: #0D47A1;
+  --franky-blue-light: #42A5F5;
+  --franky-red: #E53935;
+  --franky-gold: #FFD700;
+  --color-background: #E8EDF2;
+  --color-surface: #F5F7FA;
+  --color-text-primary: #1A1A2E;
+  --color-text-secondary: #546E7A;
+  --color-border: #CFD8DC;
+}
 
-  --color-background: #f4f7f6;
-  --color-text-primary: #2c3e50;
-  --color-text-secondary: #596e79;
-  --color-border: #dfe4e8;
+* {
+  box-sizing: border-box;
 }
 
 a {
   font-weight: 500;
-  color: var(--color-accent);
+  color: var(--franky-blue);
   text-decoration: none;
+  transition: color 0.2s;
 }
 a:hover {
-  color: #535bf2;
+  color: var(--franky-blue-dark);
 }
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background-color: var(--color-background);
   color: var(--color-text-primary);
 }
 
-h1 {
-  font-size: 3.2em;
+h1, h2, h3, h4 {
+  font-family: 'Bebas Neue', sans-serif;
+  letter-spacing: 1px;
   line-height: 1.1;
+  color: var(--color-text-primary);
 }
 
 button {
@@ -52,29 +55,42 @@ button {
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  font-weight: 600;
+  font-family: 'Inter', sans-serif;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: all 0.25s;
 }
 button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  border-color: var(--franky-blue);
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+input.error, select.error {
+  border-color: var(--franky-red) !important;
+  background-color: #FFF5F5;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--franky-blue);
+  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.15);
+}
+
+@keyframes slide {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+
+@keyframes starFloat {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-8px) rotate(10deg); opacity: 1; }
+}
+
+@keyframes superPulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.franky-star {
+  color: var(--franky-gold);
+  animation: starFloat 3s ease-in-out infinite;
 }

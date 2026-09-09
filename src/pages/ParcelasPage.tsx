@@ -1,37 +1,20 @@
-// src/pages/ParcelasPage.tsx
-
 import { NavLink, Outlet } from 'react-router-dom';
+import styles from '../styles/ParcelaPage.module.css';
 
 export const ParcelasPage = () => {
-  const navLinkStyle = {
-    padding: '0.5rem 1rem',
-    textDecoration: 'none',
-    color: 'black',
-    borderBottom: '2px solid transparent',
-  };
-
-  const activeNavLinkStyle = {
-    ...navLinkStyle,
-    borderBottom: '2px solid #1976d2',
-    color: '#1976d2',
-  };
+  const navClass = ({ isActive }: { isActive: boolean }) =>
+    `${styles.navLink} ${isActive ? styles.active : ''}`;
 
   return (
-    <div>
-      <header style={{ marginBottom: '1.5rem' }}>
-        <h1>Gestión de Parcelas</h1>
-        <nav style={{ borderBottom: '1px solid #ccc', display: 'flex' }}>
-          <NavLink 
-            to="/parcelas/tabla" 
-            style={({ isActive }) => isActive ? activeNavLinkStyle : navLinkStyle}
-          >
+    <div style={{ padding: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
+      <header style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
+        <h1 className={styles.title}>Gestión de Parcelas</h1>
+        <nav style={{ display: 'flex', gap: '1rem' }}>
+          <NavLink to="/parcelas/tabla" className={navClass}>
             Listado de parcelas
           </NavLink>
-          <NavLink 
-            to="/parcelas/crear" 
-            style={({ isActive }) => isActive ? activeNavLinkStyle : navLinkStyle}
-          >
-            Añadir nueva parcela
+          <NavLink to="/parcelas/crear-sigpac" className={navClass}>
+            Añadir parcela desde SIGPAC
           </NavLink>
         </nav>
       </header>

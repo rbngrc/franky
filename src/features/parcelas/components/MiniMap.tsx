@@ -1,6 +1,5 @@
 // src/features/parcelas/components/MiniMap.tsx
 
-import React from 'react';
 import { MapContainer, TileLayer, Polygon } from 'react-leaflet';
 import { LatLngBounds } from 'leaflet';
 import Wkt from 'wicket';
@@ -38,7 +37,7 @@ export const MiniMap: React.FC<MiniMapProps> = ({ wktGeometry }) => {
         </MapContainer>
       );
     }
-  } catch (e) {
+  } catch {
     return <div style={{ height: '100px', width: '150px', color: 'red' }}>Error WKT</div>;
   }
 

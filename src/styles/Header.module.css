@@ -1,0 +1,58 @@
+.header {
+  padding: 0.75rem 2rem;
+  background: linear-gradient(135deg, var(--franky-blue-dark) 0%, var(--franky-blue) 100%);
+  border-bottom: 3px solid var(--franky-gold);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.title {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.25rem;
+  letter-spacing: 2px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+}
+
+.titleAccent {
+  color: var(--franky-gold);
+}
+
+.userArea {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.userDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #4CAF50;
+  display: inline-block;
+  animation: superPulse 2s ease-in-out infinite;
+}
+
+.breadcrumb {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 2px;
+}
+
+.breadcrumb a {
+  color: rgba(255, 255, 255, 0.7);
+  text-decoration: none;
+}
+
+.breadcrumb a:hover {
+  color: var(--franky-gold);
+}

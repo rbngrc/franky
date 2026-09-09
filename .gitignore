@@ -12,13 +12,32 @@ dist
 dist-ssr
 *.local
 
+# Env files
+.env
+.env.*
+!.env.example
+
+# Test coverage
+coverage
+
+# TypeScript build cache
+*.tsbuildinfo
+
+# Source maps
+*.map
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
 .idea
 .DS_Store
+Thumbs.db
+desktop.ini
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Tests / dev scraps
+test_api.js

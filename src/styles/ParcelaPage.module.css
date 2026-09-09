@@ -1,0 +1,26 @@
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2rem;
+  margin: 0 0 0.5rem;
+  color: var(--franky-blue-dark);
+  letter-spacing: 1px;
+}
+
+.navLink {
+  padding: 0.5rem 1rem;
+  text-decoration: none;
+  color: var(--color-text-secondary);
+  border-bottom: 2px solid transparent;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+.navLink:hover {
+  color: var(--franky-blue);
+  border-bottom-color: var(--franky-blue-light);
+}
+.active {
+  border-bottom: 2px solid var(--franky-blue);
+  color: var(--franky-blue);
+  font-weight: 600;
+}
