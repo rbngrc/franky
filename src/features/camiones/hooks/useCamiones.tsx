@@ -13,7 +13,10 @@ export const useCamiones = () => {
       try {
         setIsLoading(true);
         const data = await fetchCamiones(ac.signal);
-        if (!ac.signal.aborted) setCamiones(data);
+        if (!ac.signal.aborted) {
+          setCamiones(data);
+          setError(null);
+        }
       } catch {
         if (ac.signal.aborted) return;
         setError('Error al cargar camiones');

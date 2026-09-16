@@ -100,8 +100,7 @@ export const TransporteDetailPage = () => {
     const qrData = `${window.location.origin}/transportes/${transporte.id}`;
 
     const qrCanvas = document.createElement('canvas');
-    QRCode.toCanvas(qrCanvas, qrData, { width: 150, margin: 1 });
-    await new Promise<void>((resolve) => { setTimeout(resolve, 300); });
+    await QRCode.toCanvas(qrCanvas, qrData, { width: 150, margin: 1 });
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
     const margin = 20;
@@ -190,6 +189,7 @@ export const TransporteDetailPage = () => {
   const parcelaCenter = parcela?.wktGeolocalizacion ? parseWktCenter(parcela.wktGeolocalizacion) : null;
   const centroPos: [number, number] | null = centro?.latitud != null && centro?.longitud != null ? [centro.latitud, centro.longitud] : null;
   const showRoute = parcelaCenter && centroPos;
+  const routeWaypoints: [number, number][] | null = parcelaCenter && centroPos ? [parcelaCenter, centroPos] : null;
   let mapCenter: [number, number] | null = null;
   if (parcelaCenter && centroPos) mapCenter = [(parcelaCenter[0] + centroPos[0]) / 2, (parcelaCenter[1] + centroPos[1]) / 2];
   else if (parcelaCenter) mapCenter = parcelaCenter;
@@ -448,7 +448,7 @@ export const TransporteDetailPage = () => {
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={parcelaCenter!}><Popup>Parcela: {transporte.parcelaNombre || transporte.parcelaId}</Popup></Marker>
               <Marker position={centroPos!}><Popup>Destino: {transporte.centroNombre || transporte.destino}</Popup></Marker>
-              <RoutingMachine waypoints={[parcelaCenter!, centroPos!]} />
+              <RoutingMachine waypoints={routeWaypoints!} />
             </MapContainer>
           </div>
         </div>

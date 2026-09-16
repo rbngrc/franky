@@ -201,6 +201,7 @@ export const SigpacMapViewer: React.FC<SigpacMapViewerProps> = ({
       setGeometryLoading(false);
       setStatusMessage(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- addGeoJsonToMap/resolverUbicacion son estables; incluirlas causaría re-render infinito
   }, [onParcelaSelect]);
 
   const handleFetchGeometry = () => {
@@ -467,6 +468,7 @@ export const SigpacMapViewer: React.FC<SigpacMapViewerProps> = ({
         mapRef.current = null;
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Inicialización del mapa Leaflet; solo debe ejecutarse una vez
   }, []);
 
   useEffect(() => {
@@ -532,6 +534,7 @@ export const SigpacMapViewer: React.FC<SigpacMapViewerProps> = ({
       geoJsonLayerRef.current.remove();
       geoJsonLayerRef.current = null;
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- addGeoJsonToMap es estable en ref; incluirla re-renderizaría el mapa innecesariamente
   }, [geojsonData]);
 
   useEffect(() => {

@@ -4,6 +4,7 @@ import { useTransportes } from '../features/transportes/hooks/useTransportes';
 import { CalendarWidget } from '../components/CalendarWidget';
 import { ConfirmDialog } from '../components/ConfirmDialog';
 import { tipoMaderaLabel } from '../constants/madera';
+import { escapeCSVCell } from '../features/transportes/utils/csv';
 
 const exportToCSV = (data: ReturnType<typeof useTransportes>['transportes']) => {
   const headers = ['Código Trazabilidad', 'Camión', 'Camionero', 'Madera', 'Toneladas', 'Fecha', 'Destino', 'EUDR', 'PEFC', 'SURE'];
@@ -16,7 +17,7 @@ const exportToCSV = (data: ReturnType<typeof useTransportes>['transportes']) => 
     t.sureCumplimiento ? 'Cumple' : 'Pendiente',
   ]);
 
-  const csv = [headers.join(','), ...rows.map((r) => r.join(','))].join('\n');
+  const csv = [headers.map(escapeCSVCell).join(','), ...rows.map((r) => r.map(escapeCSVCell).join(','))].join('\n');
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

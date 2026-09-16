@@ -96,5 +96,17 @@ describe('ApiClient', () => {
 
       expect(result).toEqual({});
     });
+
+    it('returns text when response is non-JSON 2xx', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        statusText: 'OK',
+        text: async () => 'plain text response',
+      });
+
+      const result = await ApiClient.get<string>('/parcelas/export');
+
+      expect(result).toBe('plain text response');
+    });
   });
 });

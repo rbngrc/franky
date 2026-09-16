@@ -62,7 +62,8 @@ export const TablaDetalladaPage = () => {
                 {parcela.eudrCompliant === true ? 'Cumple' : parcela.eudrCompliant === false ? 'No cumple' : 'Pendiente'}
               </span>
             </td>
-            <td style={{ padding: '8px', display: 'flex', gap: 8 }}>
+            <td style={{ padding: '8px' }}>
+              <div style={{ display: 'flex', gap: 8 }}>
               <Link
                 to={`/parcelas/detalle/${parcela.id}`}
                 style={{ color: '#0097A7', textDecoration: 'none', fontWeight: 500 }}
@@ -83,6 +84,7 @@ export const TablaDetalladaPage = () => {
               >
                 {deletingId === parcela.id ? 'Eliminando...' : 'Eliminar'}
               </button>
+              </div>
             </td>
           </tr>
         ))}

@@ -29,7 +29,11 @@ export class ApiClient {
 
     const text = await response.text();
     if (!text) return {} as T;
-    return JSON.parse(text) as T;
+    try {
+      return JSON.parse(text) as T;
+    } catch {
+      return text as T;
+    }
   }
 
   static async get<T>(endpoint: string, options?: RequestInit): Promise<T> {

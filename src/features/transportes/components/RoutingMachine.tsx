@@ -6,9 +6,13 @@ interface Props {
   waypoints: [number, number][];
 }
 
+const waypointsKey = (waypoints: [number, number][]) =>
+  waypoints.map((wp) => `${wp[0]},${wp[1]}`).join('|');
+
 export const RoutingMachine = ({ waypoints }: Props) => {
   const map = useMap();
   const polyRef = useRef<L.Polyline | null>(null);
+  const key = waypointsKey(waypoints);
 
   useEffect(() => {
     const validWps = waypoints.filter((wp) => wp != null && !isNaN(wp[0]) && !isNaN(wp[1]));
@@ -56,7 +60,9 @@ export const RoutingMachine = ({ waypoints }: Props) => {
         polyRef.current = null;
       }
     };
-  }, [map, waypoints]);
+    // waypoints se compara por clave serializada para evitar re-fetch en cada render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, key]);
 
   return null;
 };

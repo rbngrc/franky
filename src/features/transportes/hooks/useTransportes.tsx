@@ -11,7 +11,10 @@ export const useTransportes = () => {
     try {
       setIsLoading(true);
       const data = await fetchTransportes(signal);
-      if (!signal?.aborted) setTransportes(data);
+      if (!signal?.aborted) {
+        setTransportes(data);
+        setError(null);
+      }
     } catch {
       if (signal?.aborted) return;
       setError('Error al cargar transportes');

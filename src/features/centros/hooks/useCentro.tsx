@@ -4,16 +4,21 @@ import type { Centro } from '../types/centro.types';
 
 export const useCentro = (id: number | null) => {
   const [centro, setCentro] = useState<Centro | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) return;
+    if (!id) {
+      setCentro(null);
+      setIsLoading(false);
+      return;
+    }
     const abortController = new AbortController();
 
     const loadData = async () => {
       try {
         setIsLoading(true);
+        setCentro(null);
         const data = await fetchCentroById(id, abortController.signal);
         if (!abortController.signal.aborted) {
           setCentro(data);

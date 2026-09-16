@@ -41,3 +41,7 @@ desktop.ini
 
 # Tests / dev scraps
 test_api.js
+
+# Playwright
+test-results/
+playwright-report/

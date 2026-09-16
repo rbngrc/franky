@@ -1,12 +1,12 @@
 import { useMemo, useEffect, useState } from 'react';
 import { MapContainer, TileLayer, Polyline, Marker, Tooltip } from 'react-leaflet';
 import L from 'leaflet';
-import Wkt from 'wicket';
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import type { Centro } from '../../centros/types/centro.types';
 import type { Transporte } from '../../transportes/types/transporte.types';
 import type { Parcela } from '../../parcelas/types/parcela.types';
+import { parseWktCenter } from '../../../lib/geojson';
 
 const DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
 
@@ -23,22 +23,6 @@ interface Props {
   transportes: Transporte[];
   centros: Centro[];
   parcelas: Parcela[];
-}
-
-function parseWktCenter(wkt: string): [number, number] | null {
-  try {
-    const w = new Wkt.Wkt();
-    w.read(wkt);
-    const geoJson = w.toJson();
-    if (geoJson.type === 'Point') return [geoJson.coordinates[1], geoJson.coordinates[0]];
-    if (geoJson.type === 'Polygon') {
-      const coords = geoJson.coordinates[0];
-      const sumLng = coords.reduce((s: number, c: number[]) => s + c[0], 0);
-      const sumLat = coords.reduce((s: number, c: number[]) => s + c[1], 0);
-      return [sumLat / coords.length, sumLng / coords.length];
-    }
-    return null;
-  } catch { return null; }
 }
 
 const dateLabel = (fechaCarga: string) => new Date(fechaCarga).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
@@ -99,7 +83,7 @@ export const DashboardRoutesMap = ({ transportes, centros, parcelas }: Props) =>
     });
 
     return result;
-  }, [transportes, centros]);
+  }, [transportes, centros, parcelas]);
 
   useEffect(() => {
     const abortController = new AbortController();
