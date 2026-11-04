@@ -157,6 +157,29 @@ components:
     textColor: "{colors.white}"
     typography: "{typography.badge}"
     letterSpacing: 1px
+  mobile-bottom-nav:
+    backgroundColor: "{colors.white}"
+    textColor: "{colors.on-surface-secondary}"
+    borderTop: 1px solid "{colors.border}"
+    padding: 0.5rem
+  connection-status:
+    rounded: "{rounded.full}"
+    padding: 0.2rem 0.6rem
+    typography: "{typography.badge}"
+  kpi-card:
+    backgroundColor: "{colors.white}"
+    rounded: "{rounded.lg}"
+    border: 1px solid "{colors.border-light}"
+    padding: "{spacing.md}"
+  chart-card:
+    backgroundColor: "{colors.white}"
+    rounded: "{rounded.lg}"
+    border: 1px solid "{colors.border-light}"
+    padding: "{spacing.lg}"
+  scanner:
+    backgroundColor: "{colors.neutral-dark}"
+    textColor: "{colors.white}"
+    rounded: "{rounded.lg}"
 ---
 
 # Design System: Franky — EUDR Compliance App
@@ -259,7 +282,7 @@ La UI es **limpia, funcional y orientada a datos** — tablas, formularios y tar
 
 | Property | Value |
 |----------|-------|
-| Max width | `1200px` |
+| Max width | `1200px` (general); hasta `1400px` en pantallas de datos como Parcelas |
 | Page padding | `1rem` |
 | Margin | `0 auto` (centered) |
 | Width | `100%` |
@@ -277,6 +300,20 @@ La UI es **limpia, funcional y orientada a datos** — tablas, formularios y tar
 | Breakpoint | Changes |
 |------------|---------|
 | `768px` | Two-col → single column; page title `2rem` |
+
+### Mobile & Field Work
+
+La experiencia de **conductor** y **agente forestal** es móvil-first:
+
+| Element | Behavior |
+|---------|----------|
+| Sidebar | Se oculta en conductor/agente; se usa `MobileBottomNav` |
+| Bottom nav | 3 acciones: Inicio, Escáner, Sincronizar; fondo blanco, borde superior sutil, altura táctil ≥44px |
+| Content padding | Deja espacio inferior para la bottom nav (`padding-bottom` holgado + `env(safe-area-inset-bottom)` si aplica) |
+| Cards | Una columna, acciones a ancho completo, texto legible a una mano |
+| Connection status | Píldora compacta en el header: Online (success), Offline (error), Sincronizando (primary), pendientes (warning), errores (error) |
+| Scanner | Vídeo con borde redondeado 12px, fondo `#000`/`neutral-dark`, botón de captura grande y estado OCR encima |
+| Photos | Grid de miniaturas 2 columnas con botón "Retomar" por foto |
 
 ### Spacing Scale
 
@@ -388,6 +425,45 @@ Pill shape (20px radius), 0.75rem bold, inline-block.
 
 Card-like container with a horizontal progress bar. Fill has gradient-like animation (1s cubic-bezier), white text centered, 12px radius overflow hidden.
 
+### KPI Cards & Charts
+
+| Element | Style |
+|---------|-------|
+| KPI card | Card blanco, radio 12px, borde `#E8EDF2`, padding 1rem; valor grande (Inter 700), label secundario, enlace al módulo |
+| Chart card (`ChartCard`) | Card blanco, título de sección Bebas Neue 1.3rem, subtítulo opcional, cuerpo con `recharts` |
+| Chart palette | `#1565C0`, `#2E7D32`, `#F57F17`, `#E53935`, `#0097A7`, `#9C27B0`, `#FF9800`, `#607D8B` |
+| Grid | 2 columnas en desktop (`chartsGrid`), 1 columna en móvil |
+| Empty/loading | Placeholder con texto secundario; no mostrar ejes vacíos si no hay datos |
+
+Los gráficos usan `ResponsiveContainer` y deben mantener altura estable para evitar saltos de layout.
+
+### Connection Status (PWA)
+
+Píldora compacta en el header con punto de color:
+
+| Estado | Color | Texto |
+|--------|-------|-------|
+| Online | Success `#2E7D32` | `Online` |
+| Offline | Error `#E53935` | `Offline` |
+| Sincronizando | Primary `#1565C0` | `Sincronizando...` |
+| Pendientes | Warning `#F57F17` | `N pendiente(s)` |
+| Con error | Error `#E53935` | `N con error` |
+
+### Camera & OCR
+
+| Element | Style |
+|---------|-------|
+| Preview | Vídeo/canvas 16:9 o cuadrado, radio 12px, fondo `#000` |
+| Capture button | Primary, grande, ancho completo en móvil |
+| OCR status | Texto secundario sobre caja surface; indicar "Leyendo..." y el resultado detectado |
+| Confidence | Texto pequeño (`0.85rem`) con porcentaje; nunca bloquear el guardado por baja confianza |
+| Review form | Grid 1 columna en móvil, 2 en desktop; inputs táctiles ≥44px |
+| Error | Caja de error estándar, con acción para reintentar la foto |
+
+### Mobile Bottom Nav
+
+Barra fija inferior, fondo blanco, borde superior `#CFD8DC`, 3 ítems con icono + label. El ítem activo usa primary; el botón de sincronizar se deshabilita si no hay conexión o no hay pendientes. Debe respetar `safe-area-inset-bottom`.
+
 ### States
 
 | Component | Style |
@@ -410,11 +486,21 @@ Block links with 8px radius, primary blue, hover → light blue bg + translateX(
 - Mantener tablas responsive con `overflow-x: auto`
 - Usar `AbortController` en hooks para evitar race conditions
 - Usar `ErrorBoundary` por página (no global, excepto raíz)
+- Diseñar primero en móvil para conductor/agente: acciones grandes, una columna y bottom nav
+- Mostrar siempre el estado de conexión/sincronización cuando haya trabajo offline
+- Usar `recharts` con `ResponsiveContainer` y alturas estables
+- Marcar visualmente los datos que vienen de caché ("Mostrando datos guardados sin conexión")
+- Pedir confirmación humana tras el OCR antes de guardar pesos/ticket
+- Respetar `safe-area-inset-bottom` en la navegación móvil
 
 ### Don't
 - No usar gold (`#FFD700`) como color funcional — es decorativo (estrella Franky)
 - No mezclar Bebas Neue con Inter en el mismo bloque de texto
 - No aplicar sombras excesivas — mantener elevación sutil
-- No usar inline styles — usar los módulos CSS (`src/styles/*.module.css`) y las variables `--franky-*` / `--color-*`
+- No añadir inline styles nuevos — usar los módulos CSS (`src/styles/*.module.css`) y las variables `--franky-*` / `--color-*` (hay deuda técnica existente que se debe ir migrando)
 - No usar CORS en producción si se puede usar el proxy Vite
-- No generar QR ni CSV desde backend — hacerlo client-side
+- No generar QR, CSV, PDF ni OCR desde backend — hacerlo client-side
+- No mostrar errores técnicos crudos al conductor; mensajes accionables y en español
+- No bloquear la captura de fotos por baja confianza del OCR: permitir corregir a mano
+- No asumir conexión permanente: toda escritura de campo debe pasar por la outbox
+- No usar colores de certificación para acciones de UI (sólo para estado)
