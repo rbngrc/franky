@@ -3,8 +3,10 @@ export type Camion = {
   marca: string;
   modelo: string;
   capacidadToneladas: number;
+  capacidadM3?: number;
   tara: number;
   activo: boolean;
+  remolqueMatricula?: string;
 };
 
 export type CamionFormData = {
@@ -12,5 +14,7 @@ export type CamionFormData = {
   marca: string;
   modelo: string;
   capacidadToneladas: number;
+  capacidadM3?: number;
   tara: number;
+  remolqueMatricula?: string;
 };

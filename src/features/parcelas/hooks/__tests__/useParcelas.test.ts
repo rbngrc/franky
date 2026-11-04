@@ -6,8 +6,8 @@ import type { PaginatedParcelasResponse, Parcela } from '../../types/parcela.typ
 vi.mock('../../api/parcelaApiService');
 
 const mockParcelas: Parcela[] = [
-  { id: '1', nombre: 'Parcela A', wktGeolocalizacion: null },
-  { id: '2', nombre: 'Parcela B', wktGeolocalizacion: null },
+  { id: '1', nombre: 'Parcela A', wktGeolocalizacion: null, eudrCompliant: false },
+  { id: '2', nombre: 'Parcela B', wktGeolocalizacion: null, eudrCompliant: false },
 ];
 
 const mockResponse: PaginatedParcelasResponse = {

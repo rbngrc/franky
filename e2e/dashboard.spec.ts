@@ -8,6 +8,7 @@ const mockParcelas = [
     eudrCompliant: true,
     municipio: 'Ávila',
     provincia: 'Ávila',
+    areaMetrosCuadrados: 500000,
   },
   {
     id: 'p2',
@@ -16,6 +17,7 @@ const mockParcelas = [
     eudrCompliant: false,
     municipio: 'Burgos',
     provincia: 'Burgos',
+    areaMetrosCuadrados: 250000,
   },
 ];
 
@@ -42,7 +44,7 @@ const mockTransportes = [
     toneladasCargadas: 22,
     tipoMadera: 'ROBLE',
     destino: 'Madrid',
-    centroId: null,
+    centroId: 1,
     eudrCumplimiento: true,
     eudrGeolocalizacionOk: true,
     eudrReferenciaCatastralOk: true,
@@ -86,25 +88,62 @@ async function mockAllApis(page: import('@playwright/test').Page) {
       status: 200,
       contentType: 'application/json',
       body: JSON.stringify({
-        routes: [{ geometry: { coordinates: [[-4.7, 41.6], [-3.7, 40.4]] } }],
+        routes: [{ distance: 412300.5, geometry: { coordinates: [[-4.7, 41.6], [-3.7, 40.4]] } }],
       }),
     });
   });
   await page.route('https://{s}.tile.openstreetmap.org/**', (route) => route.abort());
 }
 
-test('carga el dashboard con datos mock', async ({ page }) => {
+test('la pantalla de inicio muestra el menú de módulos', async ({ page }) => {
   await mockAllApis(page);
   await page.goto('/');
-  await expect(page.getByText('Panel de Control')).toBeVisible();
-  await expect(page.getByText('Parcelas', { exact: true }).last()).toBeVisible();
-  await expect(page.getByText('2').first()).toBeVisible();
-  await expect(page.getByRole('link', { name: 'Transportes' }).first()).toBeVisible();
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Inicio', exact: true })).toBeVisible();
+  await expect(page.getByText('Módulos')).toBeVisible();
+  await expect(page.getByText('Acciones rápidas')).toBeVisible();
+  await expect(page.getByRole('link', { name: /Panel de Control/ }).first()).toBeVisible();
 });
 
-test('navega al detalle de camiones desde el dashboard', async ({ page }) => {
+test('navega a un módulo desde el menú de inicio', async ({ page }) => {
   await mockAllApis(page);
   await page.goto('/');
+  await page.getByRole('link', { name: /Camiones/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Camiones', exact: true })).toBeVisible();
+});
+
+test('el menú de inicio enlaza con el panel de control', async ({ page }) => {
+  await mockAllApis(page);
+  await page.goto('/');
+  await page.getByRole('link', { name: /Estadísticas y métricas/ }).click();
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Panel de Control', exact: true })).toBeVisible();
+});
+
+test('carga el panel de control con datos mock', async ({ page }) => {
+  await mockAllApis(page);
+  await page.goto('/dashboard');
+  await expect(page.getByRole('main').getByRole('heading', { name: 'Panel de Control', exact: true })).toBeVisible();
+  await expect(page.getByText('★ Certificaciones')).toBeVisible();
+  await expect(page.getByText('Toneladas por tipo de madera')).toBeVisible();
+  await expect(page.getByText('Evolución mensual de carga')).toBeVisible();
+  await expect(page.getByText('Cumplimiento de certificaciones')).toBeVisible();
+  await expect(page.getByText('Superficie por provincia')).toBeVisible();
+  await expect(page.getByText('Transportes por centro de destino')).toBeVisible();
+  await expect(page.getByText('Flota por marca')).toBeVisible();
+  await expect(page.getByText('Kilometraje de rutas')).toBeVisible();
+  await expect(page.getByText('★ Últimos transportes')).toBeVisible();
+});
+
+test('el panel de control muestra los KPIs calculados', async ({ page }) => {
+  await mockAllApis(page);
+  await page.goto('/dashboard');
+  await expect(page.getByRole('main').getByText('Toneladas cargadas', { exact: true })).toBeVisible();
+  await expect(page.getByRole('main').getByText('Parcelas', { exact: true })).toBeVisible();
+  await expect(page.getByText('Cumplen EUDR', { exact: false })).toBeVisible();
+});
+
+test('navega al detalle de camiones desde el panel de control', async ({ page }) => {
+  await mockAllApis(page);
+  await page.goto('/dashboard');
   await page.getByRole('link', { name: 'Camiones' }).first().click();
   await expect(page.getByRole('heading', { name: 'Camiones', exact: true })).toBeVisible();
 });

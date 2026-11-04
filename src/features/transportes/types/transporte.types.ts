@@ -6,8 +6,13 @@ export type Transporte = {
   camionMarca?: string;
   camioneroDni: string;
   camioneroNombre?: string;
+  conductorDni?: string;
+  conductorNombre?: string;
   fechaCarga: string;
   toneladasCargadas: number;
+  metrosCubicos?: number;
+  remolqueMatricula?: string;
+  expedienteId?: number;
   tipoMadera: string;
   destino: string;
   centroId?: number;
@@ -30,6 +35,13 @@ export type Transporte = {
   cocSureOk?: boolean;
   geiReduccionOk?: boolean | null;
   referenciaCocSure?: string | null;
+  pesoBrutoKg?: number | null;
+  taraKg?: number | null;
+  pesoNetoKg?: number | null;
+  numeroTicket?: string | null;
+  fechaPesaje?: string | null;
+  horaPesaje?: string | null;
+  fotos?: { frente?: string; trasera?: string; lateral?: string; ticket?: string };
 };
 
 export type TransporteFormData = {
@@ -39,6 +51,9 @@ export type TransporteFormData = {
   camioneroDni: string;
   fechaCarga: string;
   toneladasCargadas: number;
+  metrosCubicos?: number;
+  remolqueMatricula?: string;
+  expedienteId?: number;
   tipoMadera: string;
   destino: string;
   centroId?: number;

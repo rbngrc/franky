@@ -1,10 +1,11 @@
 import { test, expect } from '@playwright/test';
 
 const ROUTES = [
-  { path: '/', title: 'Panel de Control' },
+  { path: '/', title: 'Inicio' },
+  { path: '/dashboard', title: 'Panel de Control' },
   { path: '/parcelas/tabla', title: 'Parcelas' },
   { path: '/camiones', title: 'Camiones' },
-  { path: '/camioneros', title: 'Camioneros' },
+  { path: '/conductores', title: 'Conductores' },
   { path: '/transportes', title: 'Transportes' },
   { path: '/centros', title: 'Centros' },
   { path: '/proveedores', title: 'Proveedores' },
@@ -60,5 +61,5 @@ test('sidebar contiene todas las secciones principales', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByText('FRANKY')).toBeVisible();
   const links = page.locator('nav a');
-  await expect(links).toHaveCount(8);
+  await expect(links).toHaveCount(10);
 });

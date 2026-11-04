@@ -62,7 +62,7 @@ describe('CamionFormPage', () => {
 
     await waitFor(() => {
       expect(camionApiService.createCamion).toHaveBeenCalledWith({
-        matricula: '1234ABC', marca: 'Mercedes', modelo: 'Actros', capacidadToneladas: 24, tara: 12000,
+        matricula: '1234ABC', marca: 'Mercedes', modelo: 'Actros', capacidadToneladas: 24, tara: 12000, remolqueMatricula: '',
       });
     });
 

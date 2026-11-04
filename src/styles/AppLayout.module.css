@@ -21,3 +21,13 @@
   overflow-y: auto;
   position: relative;
 }
+
+.mainContentMobile {
+  padding-bottom: 4.2rem;
+}
+
+@media (max-width: 900px) {
+  .pageContent {
+    padding: 1rem;
+  }
+}

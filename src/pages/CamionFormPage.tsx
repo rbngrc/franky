@@ -13,7 +13,7 @@ export const CamionFormPage = () => {
   const { matricula: editMatricula } = useParams<{ matricula: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(editMatricula);
-  const [form, setForm] = useState({ matricula: '', marca: '', modelo: '', capacidadToneladas: 0, tara: 0 });
+  const [form, setForm] = useState({ matricula: '', marca: '', modelo: '', capacidadToneladas: 0, tara: 0, remolqueMatricula: '' });
   const [fieldErrors, setFieldErrors] = useState<FieldErrors>({});
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEditing);
@@ -32,6 +32,7 @@ export const CamionFormPage = () => {
             modelo: data.modelo,
             capacidadToneladas: data.capacidadToneladas,
             tara: data.tara,
+            remolqueMatricula: data.remolqueMatricula || '',
           });
         }
       } catch {
@@ -147,6 +148,17 @@ export const CamionFormPage = () => {
             onChange={(e) => update('tara', Number(e.target.value))}
             className="form-input"
             placeholder="Ej: 12000"
+          />
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Remolque (matrícula)</label>
+          <input
+            type="text"
+            value={form.remolqueMatricula}
+            onChange={(e) => update('remolqueMatricula', e.target.value)}
+            className="form-input"
+            placeholder="Ej: R-5678XYZ"
           />
         </div>
 

@@ -9,12 +9,12 @@ const mockTransportes: Transporte[] = [
   {
     id: 1, parcelaId: 'p1', camionMatricula: '1234ABC', camioneroDni: '12345678A',
     fechaCarga: '2026-05-01', toneladasCargadas: 22, tipoMadera: 'ROBLE',
-    destino: 'Madrid', eudrCumplimiento: true, codigoTrazabilidad: 'abc-123',
+    destino: 'Madrid', eudrCumplimiento: true, eudrGeolocalizacionOk: true, eudrReferenciaCatastralOk: true, pefcCumplimiento: false, sureCumplimiento: false, codigoTrazabilidad: 'abc-123',
   },
   {
     id: 2, parcelaId: 'p2', camionMatricula: '5678DEF', camioneroDni: '87654321B',
     fechaCarga: '2026-05-02', toneladasCargadas: 18, tipoMadera: 'PINO',
-    destino: 'Barcelona', eudrCumplimiento: false, codigoTrazabilidad: 'def-456',
+    destino: 'Barcelona', eudrCumplimiento: false, eudrGeolocalizacionOk: false, eudrReferenciaCatastralOk: false, pefcCumplimiento: false, sureCumplimiento: false, codigoTrazabilidad: 'def-456',
   },
 ];
 

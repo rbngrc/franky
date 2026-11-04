@@ -1,0 +1,129 @@
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.scanButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.scanner {
+  margin: 1rem 0;
+}
+
+.ocrStatus {
+  margin: 0.75rem 0;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--franky-blue-dark, #0D47A1);
+}
+
+.confidence {
+  font-size: 0.8rem;
+  color: var(--color-text-muted, #67717E);
+  margin-bottom: 0.6rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #37474F;
+}
+
+.field input {
+  font-weight: 500;
+}
+
+.offlineNote {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #67717E);
+  margin: 0 0 1rem;
+  font-weight: 500;
+}
+
+.successBox {
+  border: 1px solid #C8E6C9;
+  background: #E8F5E9;
+  color: #2E7D32;
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+  line-height: 1.5;
+}
+
+.successActions {
+  margin-top: 0.9rem;
+}
+
+.stepBar {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.stepCount {
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--franky-gold, #F9A825);
+  white-space: nowrap;
+}
+
+.stepLabel {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--franky-blue-dark, #0D47A1);
+}
+
+.stepHint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted, #67717E);
+  margin: 0 0 0.75rem;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.photoCard {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+
+.photoMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.5rem 0.6rem;
+}
+
+.photoLabel {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #37474F;
+}

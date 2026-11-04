@@ -38,6 +38,10 @@ export const CamionDetailPage = () => {
             <div className="detail-value">{camion.tara} kg</div>
           </div>
           <div className="detail-item">
+            <div className="detail-label">Remolque</div>
+            <div className="detail-value">{camion.remolqueMatricula || <span className="text-muted">Sin remolque</span>}</div>
+          </div>
+          <div className="detail-item">
             <div className="detail-label">Estado</div>
             <div className="detail-value">
               <span className={`badge ${camion.activo ? 'badge-success' : 'badge-danger'}`}>

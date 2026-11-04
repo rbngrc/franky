@@ -1,0 +1,131 @@
+.header {
+  margin-bottom: 1.25rem;
+}
+
+.statusBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.statusPill,
+.pendingPill {
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.online {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.offline {
+  background: #FFEBEE;
+  color: #C62828;
+}
+
+.pendingPill {
+  background: #FFF8E1;
+  color: #F57F17;
+}
+
+.cacheNote {
+  font-size: 0.85rem;
+  color: var(--franky-blue-dim, #1565C0);
+  margin-bottom: 0.75rem;
+}
+
+.section {
+  margin-bottom: 1.5rem;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.card {
+  display: block;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #FFFFFF;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 1px 3px rgba(13, 71, 161, 0.08);
+  transition: border-color 0.15s ease, transform 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--franky-gold);
+  transform: translateY(-1px);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.4rem;
+}
+
+.cardNumber {
+  font-weight: 800;
+  color: var(--franky-blue-dark, #0D47A1);
+}
+
+.cardMatricula {
+  font-weight: 700;
+  letter-spacing: 1px;
+  font-size: 1rem;
+  color: #1565C0;
+}
+
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  font-size: 0.85rem;
+  color: #37474F;
+}
+
+.cardLabel {
+  font-weight: 600;
+  color: #90A4AE;
+  margin-right: 0.25rem;
+}
+
+.cardFooter {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--franky-gold, #F9A825);
+  text-align: right;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.empty {
+  color: var(--color-text-muted, #67717E);
+  font-size: 0.9rem;
+}
+
+.pendingCard {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #F57F17;
+}
+
+.okCard {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #2E7D32;
+}

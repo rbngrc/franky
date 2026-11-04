@@ -9,6 +9,7 @@ const mockParcela: Parcela = {
   id: '1',
   nombre: 'Parcela A',
   wktGeolocalizacion: null,
+  eudrCompliant: false,
 };
 
 describe('useParcela', () => {

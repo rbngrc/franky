@@ -2,14 +2,20 @@ import { useEffect, useRef } from 'react';
 import { useMap } from 'react-leaflet';
 import L from 'leaflet';
 
+interface RouteInfo {
+  distanceKm: number;
+  durationMin: number;
+}
+
 interface Props {
   waypoints: [number, number][];
+  onRouteFound?: (info: RouteInfo) => void;
 }
 
 const waypointsKey = (waypoints: [number, number][]) =>
   waypoints.map((wp) => `${wp[0]},${wp[1]}`).join('|');
 
-export const RoutingMachine = ({ waypoints }: Props) => {
+export const RoutingMachine = ({ waypoints, onRouteFound }: Props) => {
   const map = useMap();
   const polyRef = useRef<L.Polyline | null>(null);
   const key = waypointsKey(waypoints);
@@ -31,7 +37,8 @@ export const RoutingMachine = ({ waypoints }: Props) => {
         const data = await res.json();
         if (!data.routes || data.routes.length === 0) return;
 
-        const coords = data.routes[0].geometry.coordinates.map(
+        const route = data.routes[0];
+        const coords = route.geometry.coordinates.map(
           (c: [number, number]) => [c[1], c[0]] as [number, number],
         );
 
@@ -46,6 +53,13 @@ export const RoutingMachine = ({ waypoints }: Props) => {
         }
 
         map.fitBounds(polyRef.current.getBounds().pad(0.2));
+
+        if (onRouteFound && route.distance != null && route.duration != null) {
+          onRouteFound({
+            distanceKm: route.distance / 1000,
+            durationMin: route.duration / 60,
+          });
+        }
       } catch {
         // routing error — ignore
       }

@@ -6,6 +6,7 @@ import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import type { Centro } from '../../centros/types/centro.types';
 import type { Transporte } from '../../transportes/types/transporte.types';
 import type { Parcela } from '../../parcelas/types/parcela.types';
+import type { RouteDistance } from '../types/dashboard.types';
 import { parseWktCenter } from '../../../lib/geojson';
 
 const DefaultIcon = L.icon({ iconUrl: icon, shadowUrl: iconShadow, iconSize: [25, 41], iconAnchor: [12, 41] });
@@ -17,12 +18,14 @@ interface RouteDef {
   color: string;
   label: string;
   fecha: string;
+  destino: string;
 }
 
 interface Props {
   transportes: Transporte[];
   centros: Centro[];
   parcelas: Parcela[];
+  onDistances?: (distances: RouteDistance[]) => void;
 }
 
 const dateLabel = (fechaCarga: string) => new Date(fechaCarga).toLocaleDateString('es-ES', { day: '2-digit', month: 'short' });
@@ -32,9 +35,29 @@ function getRouteColor(i: number): string {
   return palette[i % palette.length];
 }
 
-const OSRM_CACHE = new Map<string, [number, number][]>();
+interface RouteGeo {
+  coords: [number, number][];
+  metres: number;
+}
 
-async function fetchOsrmRoute(from: [number, number], to: [number, number], signal?: AbortSignal): Promise<[number, number][]> {
+function haversineKm(a: [number, number], b: [number, number]): number {
+  const R = 6371;
+  const dLat = ((b[0] - a[0]) * Math.PI) / 180;
+  const dLon = ((b[1] - a[1]) * Math.PI) / 180;
+  const la1 = (a[0] * Math.PI) / 180;
+  const la2 = (b[0] * Math.PI) / 180;
+  const h =
+    Math.sin(dLat / 2) ** 2 + Math.cos(la1) * Math.cos(la2) * Math.sin(dLon / 2) ** 2;
+  return 2 * R * Math.asin(Math.sqrt(h));
+}
+
+const OSRM_CACHE = new Map<string, RouteGeo>();
+
+function directGeo(from: [number, number], to: [number, number]): RouteGeo {
+  return { coords: [from, to], metres: haversineKm(from, to) * 1000 };
+}
+
+async function fetchOsrmRoute(from: [number, number], to: [number, number], signal?: AbortSignal): Promise<RouteGeo> {
   const key = `${from[0]},${from[1]}-${to[0]},${to[1]}`;
   const cached = OSRM_CACHE.get(key);
   if (cached) return cached;
@@ -42,20 +65,27 @@ async function fetchOsrmRoute(from: [number, number], to: [number, number], sign
   const coordsStr = `${from[1]},${from[0]};${to[1]},${to[0]}`;
   const url = `https://router.project-osrm.org/route/v1/driving/${coordsStr}?geometries=geojson&overview=full`;
   const res = await fetch(url, { signal });
-  if (!res.ok) return [from, to];
+  if (!res.ok) return directGeo(from, to);
   const data = await res.json();
-  if (!data.routes || data.routes.length === 0) return [from, to];
+  if (!data.routes || data.routes.length === 0) return directGeo(from, to);
 
   const coords: [number, number][] = data.routes[0].geometry.coordinates.map(
     (c: [number, number]) => [c[1], c[0]],
   );
-  OSRM_CACHE.set(key, coords);
-  return coords;
+  const geo: RouteGeo = {
+    coords,
+    metres:
+      typeof data.routes[0].distance === 'number'
+        ? data.routes[0].distance
+        : haversineKm(from, to) * 1000,
+  };
+  OSRM_CACHE.set(key, geo);
+  return geo;
 }
 
 L.Marker.prototype.options.icon = DefaultIcon;
 
-export const DashboardRoutesMap = ({ transportes, centros, parcelas }: Props) => {
+export const DashboardRoutesMap = ({ transportes, centros, parcelas, onDistances }: Props) => {
   const [paths, setPaths] = useState<Map<number, [number, number][]>>(new Map());
 
   const routes = useMemo(() => {
@@ -79,6 +109,7 @@ export const DashboardRoutesMap = ({ transportes, centros, parcelas }: Props) =>
         color: getRouteColor(i),
         label: `${t.codigoTrazabilidad ? '#' + t.codigoTrazabilidad.slice(0, 8) : '#' + t.id}`,
         fecha: t.fechaCarga,
+        destino: t.centroNombre || t.destino || centro.nombre || '',
       });
     });
 
@@ -89,20 +120,33 @@ export const DashboardRoutesMap = ({ transportes, centros, parcelas }: Props) =>
     const abortController = new AbortController();
     const fetchAll = async () => {
       const m = new Map<number, [number, number][]>();
+      const dists: RouteDistance[] = [];
       await Promise.all(routes.map(async (r) => {
+        let geo: RouteGeo;
         try {
-          const coords = await fetchOsrmRoute(r.from, r.to, abortController.signal);
-          if (!abortController.signal.aborted) m.set(r.id, coords);
+          geo = await fetchOsrmRoute(r.from, r.to, abortController.signal);
         } catch {
           if (abortController.signal.aborted) return;
-          m.set(r.id, [r.from, r.to]);
+          geo = directGeo(r.from, r.to);
         }
+        if (abortController.signal.aborted) return;
+        m.set(r.id, geo.coords);
+        dists.push({
+          transporteId: r.id,
+          codigo: r.label,
+          kilometros: geo.metres / 1000,
+          destino: r.destino,
+          fechaCarga: r.fecha,
+        });
       }));
-      if (!abortController.signal.aborted) setPaths(m);
+      if (abortController.signal.aborted) return;
+      setPaths(m);
+      dists.sort((a, b) => b.kilometros - a.kilometros);
+      onDistances?.(dists);
     };
     fetchAll();
     return () => abortController.abort();
-  }, [routes]);
+  }, [routes, onDistances]);
 
   if (routes.length === 0) {
     return (

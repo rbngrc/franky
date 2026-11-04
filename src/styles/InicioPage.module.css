@@ -1,0 +1,117 @@
+.header {
+  margin-bottom: 2rem;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e8edf2;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  padding: 1.5rem;
+}
+
+.modulesTitle {
+  margin: 0 0 1.25rem 0;
+}
+
+.quickTitle {
+  margin: 0 0 1rem 0;
+}
+
+.modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1.25rem;
+}
+
+.moduleCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  padding: 1.5rem 1.25rem;
+  border-radius: 12px;
+  text-decoration: none;
+  color: inherit;
+  background: linear-gradient(135deg, #ffffff 0%, #f5f7fa 100%);
+  border: 2px solid transparent;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.moduleCard:hover {
+  border-color: var(--franky-gold);
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(21, 101, 192, 0.15), 0 0 0 1px rgba(255, 215, 0, 0.2);
+}
+
+.moduleStar {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  font-size: 0.75rem;
+  color: var(--franky-gold);
+  opacity: 0.3;
+  transition: opacity 0.3s;
+}
+
+.moduleCard:hover .moduleStar {
+  opacity: 1;
+}
+
+.moduleIcon {
+  display: flex;
+  font-size: 2rem;
+  color: var(--franky-blue);
+  transition: transform 0.3s;
+}
+
+.moduleCard:hover .moduleIcon {
+  transform: scale(1.15);
+}
+
+.moduleName {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: var(--franky-blue-dark);
+  letter-spacing: 1px;
+}
+
+.moduleDescription {
+  font-size: 0.82rem;
+  color: #546e7a;
+  line-height: 1.4;
+}
+
+.quick {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 8px;
+  color: var(--franky-blue);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.quickLink:hover {
+  background: rgba(21, 101, 192, 0.06);
+  transform: translateX(4px);
+}
+
+@media (max-width: 768px) {
+  .modules {
+    grid-template-columns: 1fr;
+  }
+}

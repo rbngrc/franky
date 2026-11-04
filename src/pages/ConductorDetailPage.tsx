@@ -2,17 +2,17 @@ import { useParams, Link } from 'react-router-dom';
 import { useCamionero } from '../features/camioneros/hooks/useCamionero';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
-export const CamioneroDetailPage = () => {
+export const ConductorDetailPage = () => {
   const { dni } = useParams<{ dni: string }>();
   const { camionero, isLoading, error } = useCamionero(dni);
 
   if (isLoading) return <LoadingIndicator />;
   if (error) return <p className="text-danger" style={{ padding: '1rem' }}>{error}</p>;
-  if (!camionero) return <p style={{ padding: '1rem' }}>Camionero no encontrado.</p>;
+  if (!camionero) return <p style={{ padding: '1rem' }}>Conductor no encontrado.</p>;
 
   return (
     <div className="page-container" style={{ maxWidth: '800px' }}>
-      <Link to="/camioneros" className="back-link">&larr; Volver a camioneros</Link>
+      <Link to="/conductores" className="back-link">&larr; Volver a conductores</Link>
       <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>{camionero.nombre} {camionero.apellidos}</h1>
 
       <div className="card card-body">
@@ -48,9 +48,11 @@ export const CamioneroDetailPage = () => {
         </div>
       </div>
 
-      <Link to={`/camioneros/editar/${encodeURIComponent(camionero.dni)}`} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-        Editar camionero
+      <Link to={`/conductores/editar/${encodeURIComponent(camionero.dni)}`} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+        Editar conductor
       </Link>
     </div>
   );
 };
+
+export { ConductorDetailPage as CamioneroDetailPage };

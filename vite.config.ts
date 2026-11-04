@@ -1,5 +1,6 @@
 import { defineConfig, type Plugin } from 'vitest/config'
 import react from '@vitejs/plugin-react'
+import { VitePWA } from 'vite-plugin-pwa'
 import type { IncomingMessage, ServerResponse } from 'http'
 import * as http from 'http'
 import * as https from 'https'
@@ -103,8 +104,77 @@ function resolveUrlPlugin(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), resolveUrlPlugin()],
+  plugins: [
+    react(),
+    VitePWA({
+      registerType: 'autoUpdate',
+      includeAssets: ['apple-touch-icon.png', 'favicon.svg'],
+      manifest: {
+        name: 'Franky — EUDR Compliance',
+        short_name: 'Franky',
+        description: 'Gestión forestal y trazabilidad EUDR',
+        lang: 'es',
+        start_url: '/',
+        scope: '/',
+        display: 'standalone',
+        theme_color: '#0D47A1',
+        background_color: '#ffffff',
+        icons: [
+          { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png' },
+          { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png' },
+          { src: 'maskable-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+        ],
+      },
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        cleanupOutdatedCaches: true,
+        navigateFallback: '/index.html',
+        runtimeCaching: [
+          {
+            urlPattern: ({ url }) => url.pathname.startsWith('/api/v1'),
+            handler: 'NetworkFirst',
+            options: {
+              cacheName: 'franky-api',
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+          {
+            urlPattern: ({ url }) => url.hostname === 'cdn.jsdelivr.net' && url.pathname.includes('tesseract'),
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'tesseract-cdn',
+              expiration: { maxEntries: 50, maxAgeSeconds: 365 * 24 * 60 * 60 },
+              cacheableResponse: { statuses: [0, 200] },
+            },
+          },
+        ],
+      },
+    }),
+    resolveUrlPlugin(),
+  ],
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          recharts: ['recharts'],
+          leaflet: ['leaflet', 'react-leaflet'],
+        },
+      },
+    },
+  },
   server: {
+    host: true,
+    proxy: {
+      '/api': {
+        target: 'http://localhost:8080',
+        changeOrigin: true,
+      },
+    },
+  },
+  preview: {
+    host: true,
     proxy: {
       '/api': {
         target: 'http://localhost:8080',

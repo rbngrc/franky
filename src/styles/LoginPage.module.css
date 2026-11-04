@@ -1,0 +1,99 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at top, var(--franky-bg), var(--color-neutral-100));
+}
+
+.card {
+  width: min(420px, 90vw);
+  background: var(--color-neutral-0);
+  border: 1px solid var(--color-neutral-200);
+  border-radius: 12px;
+  box-shadow: 0 10px 40px -20px rgba(0, 0, 0, 0.4);
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.5rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin: 0;
+  color: var(--franky-primary);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--color-neutral-700);
+}
+
+.field input {
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--color-neutral-300);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field input:focus {
+  outline: none;
+  border-color: var(--franky-primary);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
+}
+
+.error {
+  padding: 0.75rem;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  font-size: 0.875rem;
+}
+
+.submit {
+  background: var(--franky-primary);
+  color: var(--color-neutral-0);
+  border: none;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s ease, transform 0.1s ease;
+}
+
+.submit:hover:not(:disabled) {
+  opacity: 0.95;
+}
+
+.submit:active {
+  transform: scale(0.995);
+}
+
+.submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.note {
+  font-size: 0.75rem;
+  color: var(--color-neutral-500);
+  text-align: center;
+  line-height: 1.5;
+}

@@ -4,20 +4,30 @@ import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useTransporte } from '../features/transportes/hooks/useTransporte';
+import type { Transporte } from '../features/transportes/types/transporte.types';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { updateTransporte } from '../features/transportes/api/transporteApiService';
+import { useRole } from '../features/config/RoleContext';
 import { useParcela } from '../features/parcelas/hooks/useParcela';
 import { useCentro } from '../features/centros/hooks/useCentro';
 import { useParcelas } from '../features/parcelas/hooks/useParcelas';
 import { useCamiones } from '../features/camiones/hooks/useCamiones';
 import { useCamioneros } from '../features/camioneros/hooks/useCamioneros';
 import { useCentros } from '../features/centros/hooks/useCentros';
+import { useExpedientes } from '../features/expedientes/hooks/useExpedientes';
 import { RoutingMachine } from '../features/transportes/components/RoutingMachine';
 import { TIPO_MADERA_OPTIONS, tipoMaderaLabel } from '../constants/madera';
 import { parseWktCenter } from '../lib/geojson';
 import { applyDefaultLeafletIcon } from '../lib/leafletIcon';
 
 applyDefaultLeafletIcon();
+
+const FOTO_PESAJE_LABEL: Record<keyof NonNullable<Transporte['fotos']>, string> = {
+  frente: 'Camión de frente',
+  trasera: 'Camión desde atrás',
+  lateral: 'Camión de lado',
+  ticket: 'Ticket de pesaje',
+};
 
 const QRCanvas: React.FC<{ text: string }> = ({ text }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -33,6 +43,7 @@ const QRCanvas: React.FC<{ text: string }> = ({ text }) => {
 
 export const TransporteDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { isConductor, isAgenteForestal } = useRole();
   const { transporte, isLoading, error, reload } = useTransporte(id ? Number(id) : undefined);
   const { parcela } = useParcela(transporte?.parcelaId);
   const { centro } = useCentro(transporte?.centroId ?? null);
@@ -40,6 +51,7 @@ export const TransporteDetailPage = () => {
   const { camiones } = useCamiones();
   const { camioneros } = useCamioneros();
   const { centros } = useCentros();
+  const { expedientes } = useExpedientes();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [editForm, setEditForm] = useState({
@@ -47,12 +59,41 @@ export const TransporteDetailPage = () => {
     parcelaId: '', camionMatricula: '', camioneroDni: '',
     fechaCarga: '', toneladasCargadas: 0, tipoMadera: 'PINO',
     destino: '', centroId: undefined as number | undefined,
+    expedienteId: undefined as number | undefined,
+    remolqueMatricula: '',
     parcelaReferenciaCatastral: '',
     ddsOk: null as boolean | null, referenciaDds: '',
     cocPefcOk: false, referenciaCocPefc: '',
     cocSureOk: false, geiReduccionOk: null as boolean | null, referenciaCocSure: '',
   });
   const [editError, setEditError] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [lightboxFoto, setLightboxFoto] = useState<string | null>(null);
+  const [routeInfo, setRouteInfo] = useState<{ distanceKm: number; durationMin: number } | null>(null);
+
+  const copyTraceabilityCode = async () => {
+    if (!transporte?.codigoTrazabilidad) return;
+    try {
+      await navigator.clipboard.writeText(transporte.codigoTrazabilidad);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
+
+  const copyTransportLink = async () => {
+    if (!transporte) return;
+    try {
+      const url = `${window.location.origin}/transportes/${transporte.id}`;
+      await navigator.clipboard.writeText(url);
+      setCopiedLink(true);
+      setTimeout(() => setCopiedLink(false), 2000);
+    } catch {
+      // fallback
+    }
+  };
 
   const startEditing = () => {
     if (!transporte) return;
@@ -66,6 +107,8 @@ export const TransporteDetailPage = () => {
       tipoMadera: transporte.tipoMadera,
       destino: transporte.destino,
       centroId: transporte.centroId,
+      expedienteId: transporte.expedienteId,
+      remolqueMatricula: transporte.remolqueMatricula || '',
       parcelaReferenciaCatastral: transporte.parcelaReferenciaCatastral || '',
       ddsOk: transporte.ddsOk ?? null, referenciaDds: transporte.referenciaDds || '',
       cocPefcOk: transporte.cocPefcOk || false, referenciaCocPefc: transporte.referenciaCocPefc || '',
@@ -93,7 +136,16 @@ export const TransporteDetailPage = () => {
   const ef = (field: string, value: string | number | boolean | null | undefined) => setEditForm((p) => ({ ...p, [field]: value }));
 
   if (isLoading) return <LoadingIndicator />;
-  if (error) return <p className="text-danger" style={{ padding: '1rem' }}>{error}</p>;
+  if (error) {
+    return (
+      <div style={{ padding: '1rem', maxWidth: '600px' }}>
+        <p className="text-danger" style={{ marginBottom: '0.75rem' }}>{error}</p>
+        <button onClick={() => reload()} className="btn btn-primary btn-sm">
+          Reintentar
+        </button>
+      </div>
+    );
+  }
   if (!transporte) return <p style={{ padding: '1rem' }}>Transporte no encontrado.</p>;
 
   const handleDownloadPDF = async () => {
@@ -106,7 +158,7 @@ export const TransporteDetailPage = () => {
     const margin = 20;
     let y = margin;
 
-    const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString('es-ES') : '—';
+    const fmtDate = (d: string) => d ? new Date(d).toLocaleDateString('es-ES') : '??';
     const writeSection = (title: string) => {
       if (y > 262) { pdf.addPage(); y = margin; }
       pdf.setFontSize(11);
@@ -124,7 +176,7 @@ export const TransporteDetailPage = () => {
       pdf.text(label, margin + 3, y);
       const lw = pdf.getTextWidth(label + '  ');
       pdf.setFont('Helvetica', 'normal');
-      pdf.text(value || '—', margin + 3 + lw, y);
+      pdf.text(value || '??', margin + 3 + lw, y);
       y += 5;
     };
 
@@ -148,16 +200,16 @@ export const TransporteDetailPage = () => {
     writeField('Camión:', transporte.camionMatricula + (transporte.camionMarca ? ` (${transporte.camionMarca})` : ''));
     writeField('Camionero:', transporte.camioneroNombre || transporte.camioneroDni);
     writeField('Fecha de carga:', fmtDate(transporte.fechaCarga));
-    writeField('Toneladas:', transporte.toneladasCargadas ? `${transporte.toneladasCargadas} t` : '—');
-    writeField('Tipo de madera:', tipoMaderaLabel(transporte.tipoMadera) || '—');
-    writeField('Destino:', transporte.centroNombre || transporte.destino || '—');
+    writeField('Toneladas:', transporte.toneladasCargadas ? `${transporte.toneladasCargadas} t` : '??');
+    writeField('Tipo de madera:', tipoMaderaLabel(transporte.tipoMadera) || '??');
+    writeField('Destino:', transporte.centroNombre || transporte.destino || '??');
     y += 3;
 
     writeSection('ORIGEN');
     writeField('Parcela:', transporte.parcelaNombre || transporte.parcelaId);
-    writeField('Municipio:', parcela?.municipio || '—');
-    writeField('Provincia:', parcela?.provincia || '—');
-    writeField('Referencia catastral:', transporte.parcelaReferenciaCatastral || '—');
+    writeField('Municipio:', parcela?.municipio || '??');
+    writeField('Provincia:', parcela?.provincia || '??');
+    writeField('Referencia catastral:', transporte.parcelaReferenciaCatastral || '??');
     y += 3;
 
     writeSection('CERTIFICACIONES');
@@ -195,9 +247,22 @@ export const TransporteDetailPage = () => {
   else if (parcelaCenter) mapCenter = parcelaCenter;
   else if (centroPos) mapCenter = centroPos;
 
+  const hasPesaje =
+    transporte.numeroTicket != null ||
+    transporte.pesoBrutoKg != null ||
+    transporte.taraKg != null ||
+    transporte.pesoNetoKg != null ||
+    (transporte.fotos && Object.values(transporte.fotos).some(Boolean)) ||
+    false;
+
   return (
     <div className="page-container" style={{ maxWidth: '900px' }}>
-      <Link to="/transportes" className="back-link">&larr; Volver a transportes</Link>
+      <Link
+        to={isConductor ? '/conductor' : isAgenteForestal ? '/agente' : '/transportes'}
+        className="back-link"
+      >
+        &larr; {isConductor ? 'Volver a mi trabajo' : isAgenteForestal ? 'Volver al panel del agente' : 'Volver a transportes'}
+      </Link>
 
       <div className="detail-header" style={{ marginBottom: '1.5rem' }}>
         <div style={{ flex: 1 }}>
@@ -216,14 +281,37 @@ export const TransporteDetailPage = () => {
             </h1>
           )}
           <div style={{
-            fontFamily: "'Courier New', monospace",
-            fontSize: '1.15rem',
-            fontWeight: 700,
-            color: '#333',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
             marginTop: '0.25rem',
-            letterSpacing: '0.5px',
+            flexWrap: 'wrap',
           }}>
-            {transporte.codigoTrazabilidad}
+            <div style={{
+              fontFamily: "'Courier New', monospace",
+              fontSize: '1.15rem',
+              fontWeight: 700,
+              color: '#333',
+              letterSpacing: '0.5px',
+            }}>
+              {transporte.codigoTrazabilidad}
+            </div>
+            <button
+              onClick={copyTraceabilityCode}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: '0.2rem 0.6rem', fontSize: '0.8rem' }}
+              title="Copiar código de trazabilidad"
+            >
+              {copied ? '¡Copiado!' : 'Copiar código'}
+            </button>
+            <button
+              onClick={copyTransportLink}
+              className="btn btn-secondary btn-sm"
+              style={{ padding: '0.2rem 0.6rem', fontSize: '0.8rem' }}
+              title="Copiar enlace del transporte"
+            >
+              {copiedLink ? '¡Enlace copiado!' : 'Copiar enlace'}
+            </button>
           </div>
         </div>
         {!editing && (
@@ -262,14 +350,14 @@ export const TransporteDetailPage = () => {
                 <label className="form-label">Camión *</label>
                 <select value={editForm.camionMatricula} onChange={(e) => ef('camionMatricula', e.target.value)} className="form-select">
                   <option value="">Seleccionar camión...</option>
-                  {camiones.filter((c) => c.activo).map((c) => <option key={c.matricula} value={c.matricula}>{c.matricula} — {c.marca} {c.modelo}</option>)}
+                  {camiones.filter((c) => c.activo).map((c) => <option key={c.matricula} value={c.matricula}>{c.matricula} {c.marca} {c.modelo}</option>)}
                 </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Camionero *</label>
                 <select value={editForm.camioneroDni} onChange={(e) => ef('camioneroDni', e.target.value)} className="form-select">
                   <option value="">Seleccionar camionero...</option>
-                  {camioneros.filter((c) => c.activo).map((c) => <option key={c.dni} value={c.dni}>{c.dni} — {c.nombre} {c.apellidos}</option>)}
+                  {camioneros.filter((c) => c.activo).map((c) => <option key={c.dni} value={c.dni}>{c.dni} {c.nombre} {c.apellidos}</option>)}
                 </select>
               </div>
               <div className="form-group">
@@ -306,12 +394,38 @@ export const TransporteDetailPage = () => {
                 }} className="form-input" />
               </div>
               <div className="form-group">
+                <label className="form-label">Expediente</label>
+                <select
+                  value={editForm.expedienteId ?? ''}
+                  onChange={(e) => ef('expedienteId', e.target.value ? Number(e.target.value) : undefined)}
+                  className="form-select"
+                >
+                  <option value="">Sin expediente asignado</option>
+                  {expedientes
+                    .filter((ex) => ex.activo !== false)
+                    .map((ex) => (
+                      <option key={ex.id} value={ex.id}>
+                        {ex.codigoExpediente}{ex.numeroLicitacion ? ` / ${ex.numeroLicitacion}` : ''}
+                      </option>
+                    ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Remolque (matrícula)</label>
+                <input
+                  type="text"
+                  value={editForm.remolqueMatricula}
+                  onChange={(e) => ef('remolqueMatricula', e.target.value)}
+                  className="form-input"
+                />
+              </div>
+              <div className="form-group">
                 <label className="form-label">Referencia catastral de la parcela</label>
                 <input type="text" value={editForm.parcelaReferenciaCatastral} onChange={(e) => ef('parcelaReferenciaCatastral', e.target.value)} className="form-input" />
               </div>
               <details style={{ margin: '0.75rem 0', border: '1px solid #E8EDF2', borderRadius: '8px', padding: '0.5rem' }}>
                 <summary style={{ fontWeight: 600, cursor: 'pointer', color: '#0D47A1', fontSize: '0.9rem' }}>
-                  ★ Certificaciones
+                  â˜… Certificaciones
                 </summary>
                 <div style={{ marginTop: '0.75rem', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                   <div>
@@ -364,15 +478,33 @@ export const TransporteDetailPage = () => {
               <div className="detail-grid">
                 <div className="detail-item">
                   <div className="detail-label">Parcela</div>
-                  <div className="detail-value">{transporte.parcelaNombre || transporte.parcelaId || <span className="text-muted">(vacío)</span>}</div>
+                  <div className="detail-value">
+                    {transporte.parcelaId ? (
+                      <Link to={`/parcelas/detalle/${transporte.parcelaId}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+                        {transporte.parcelaNombre || transporte.parcelaId}
+                      </Link>
+                    ) : transporte.parcelaNombre || <span className="text-muted">(vacío)</span>}
+                  </div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Camión</div>
-                  <div className="detail-value">{transporte.camionMatricula}{transporte.camionMarca ? ` (${transporte.camionMarca})` : ''}</div>
+                  <div className="detail-value">
+                    {transporte.camionMatricula ? (
+                      <Link to={`/camiones/${transporte.camionMatricula}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+                        {transporte.camionMatricula}{transporte.camionMarca ? ` (${transporte.camionMarca})` : ''}
+                      </Link>
+                    ) : transporte.camionMatricula || <span className="text-muted">(vacío)</span>}
+                  </div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Camionero</div>
-                  <div className="detail-value">{transporte.camioneroNombre || transporte.camioneroDni || <span className="text-muted">(vacío)</span>}</div>
+                  <div className="detail-value">
+                    {transporte.camioneroDni ? (
+                      <Link to={`/conductores/${transporte.camioneroDni}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+                        {transporte.camioneroNombre || transporte.camioneroDni}
+                      </Link>
+                    ) : transporte.camioneroNombre || <span className="text-muted">(vacío)</span>}
+                  </div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Fecha de carga</div>
@@ -388,7 +520,27 @@ export const TransporteDetailPage = () => {
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Destino</div>
-                  <div className="detail-value">{transporte.centroNombre || transporte.destino || <span className="text-muted">(vacío)</span>}</div>
+                  <div className="detail-value">
+                    {transporte.centroId ? (
+                      <Link to={`/centros/${transporte.centroId}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+                        {transporte.centroNombre || transporte.destino}
+                      </Link>
+                    ) : transporte.centroNombre || transporte.destino || <span className="text-muted">(vacío)</span>}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Expediente</div>
+                  <div className="detail-value">
+                    {transporte.expedienteId != null ? (
+                      <Link to={`/expedientes/${transporte.expedienteId}`} style={{ color: '#1976d2', textDecoration: 'none' }}>
+                        {expedientes.find((ex) => ex.id === transporte.expedienteId)?.codigoExpediente || `#${transporte.expedienteId}`}
+                      </Link>
+                    ) : <span className="text-muted">Sin expediente</span>}
+                  </div>
+                </div>
+                <div className="detail-item">
+                  <div className="detail-label">Remolque</div>
+                  <div className="detail-value">{transporte.remolqueMatricula || <span className="text-muted">Sin remolque</span>}</div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Código trazabilidad</div>
@@ -440,17 +592,112 @@ export const TransporteDetailPage = () => {
         </div>
       </div>
 
+      {hasPesaje && (
+        <div style={{ marginTop: '1.5rem' }}>
+          <h3 style={{ marginBottom: '0.75rem' }}>Pesaje y fotos</h3>
+          <div className="card card-body">
+            <div className="detail-grid">
+              <div className="detail-item">
+                <div className="detail-label">Peso bruto</div>
+                <div className="detail-value">{transporte.pesoBrutoKg != null ? `${transporte.pesoBrutoKg} kg` : <span className="text-muted">(vacío)</span>}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">Tara</div>
+                <div className="detail-value">{transporte.taraKg != null ? `${transporte.taraKg} kg` : <span className="text-muted">(vacío)</span>}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">Peso neto</div>
+                <div className="detail-value">{transporte.pesoNetoKg != null ? `${transporte.pesoNetoKg} kg` : <span className="text-muted">(vacío)</span>}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">NÂº ticket</div>
+                <div className="detail-value">{transporte.numeroTicket || <span className="text-muted">(vacío)</span>}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">Fecha de pesaje</div>
+                <div className="detail-value">{transporte.fechaPesaje || <span className="text-muted">(vacío)</span>}</div>
+              </div>
+              <div className="detail-item">
+                <div className="detail-label">Hora de pesaje</div>
+                <div className="detail-value">{transporte.horaPesaje || <span className="text-muted">(vacío)</span>}</div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginTop: '1rem' }}>
+              {Object.keys(FOTO_PESAJE_LABEL).map((clave) => {
+                const foto = transporte.fotos?.[clave as keyof typeof FOTO_PESAJE_LABEL];
+                return (
+                  <figure key={clave} style={{ margin: 0, maxWidth: '200px' }}>
+                    {foto ? (
+                      <img
+                        src={foto}
+                        alt={FOTO_PESAJE_LABEL[clave as keyof typeof FOTO_PESAJE_LABEL]}
+                        style={{ width: '100%', borderRadius: '8px', border: '1px solid #E8EDF2', cursor: 'pointer' }}
+                        onClick={() => setLightboxFoto(foto)}
+                        title="Ampliar foto"
+                      />
+                    ) : (
+                      <div className="text-muted" style={{ width: '200px', height: '120px', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px dashed #ccc', borderRadius: '8px' }}>
+                        Sin foto
+                      </div>
+                    )}
+                    <figcaption style={{ marginTop: '0.4rem', fontSize: '0.85rem', color: '#546E7A' }}>
+                      {FOTO_PESAJE_LABEL[clave as keyof typeof FOTO_PESAJE_LABEL]}
+                    </figcaption>
+                  </figure>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+      )}
+
       {showRoute && (
         <div style={{ marginTop: '1.5rem' }}>
           <h3 style={{ marginBottom: '0.75rem' }}>Ruta parcela → destino</h3>
+          {routeInfo && (
+            <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#455A64' }}>
+              <strong>{routeInfo.distanceKm.toFixed(1)} km</strong> • <strong>{Math.round(routeInfo.durationMin)} min</strong> (estimado)
+            </div>
+          )}
           <div style={{ height: 300 }} className="map-container-box">
             <MapContainer center={mapCenter!} zoom={8} style={{ height: '100%', width: '100%' }}>
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={parcelaCenter!}><Popup>Parcela: {transporte.parcelaNombre || transporte.parcelaId}</Popup></Marker>
               <Marker position={centroPos!}><Popup>Destino: {transporte.centroNombre || transporte.destino}</Popup></Marker>
-              <RoutingMachine waypoints={routeWaypoints!} />
+              <RoutingMachine waypoints={routeWaypoints!} onRouteFound={setRouteInfo} />
             </MapContainer>
           </div>
+        </div>
+      )}
+
+      {lightboxFoto && (
+        <div
+          onClick={() => setLightboxFoto(null)}
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: 'rgba(0, 0, 0, 0.85)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000,
+            cursor: 'zoom-out',
+          }}
+        >
+          <img
+            src={lightboxFoto}
+            alt="Foto ampliada"
+            style={{
+              maxWidth: '90vw',
+              maxHeight: '90vh',
+              borderRadius: '8px',
+              boxShadow: '0 4px 20px rgba(0, 0, 0, 0.5)',
+            }}
+            onClick={(e) => e.stopPropagation()}
+          />
         </div>
       )}
     </div>

@@ -6,7 +6,11 @@ export const fetchParcelas = async (page = 0, size = 20, signal?: AbortSignal): 
   return ApiClient.get<PaginatedParcelasResponse>(`/parcelas${query}`, { signal });
 };
 
-export const createParcela = async (newParcelaData: { nombre: string; wktGeolocalizacion?: string }): Promise<Parcela> => {
+export const createParcela = async (newParcelaData: {
+  nombre: string;
+  wktGeolocalizacion?: string;
+  datosExtra?: Record<string, string>;
+}): Promise<Parcela> => {
   return ApiClient.post<Parcela>('/parcelas', newParcelaData);
 };
 

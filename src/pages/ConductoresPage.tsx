@@ -1,21 +1,22 @@
 import { Link } from 'react-router-dom';
 import { useCamioneros } from '../features/camioneros/hooks/useCamioneros';
 
-export const CamionerosPage = () => {
+export const ConductoresPage = () => {
+
   const { camioneros, isLoading, error } = useCamioneros();
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Camioneros</h1>
-        <Link to="/camioneros/nuevo" className="btn btn-primary">
-          + Nuevo camionero
+        <h1 className="page-title">Conductores</h1>
+        <Link to="/conductores/nuevo" className="btn btn-primary">
+          + Nuevo conductor
         </Link>
       </div>
 
       {isLoading && (
         <div className="loading-container">
-          <div className="loading-text">Cargando camioneros...</div>
+          <div className="loading-text">Cargando conductores...</div>
           <div className="loading-bar">
             <div className="loading-bar-fill" />
           </div>
@@ -27,10 +28,10 @@ export const CamionerosPage = () => {
       {!isLoading && !error && camioneros.length === 0 && (
         <div className="empty-state">
           <div className="empty-state-icon">👤</div>
-          <p className="empty-state-text">No hay camioneros registrados</p>
-          <p className="empty-state-sub">Añade tu primer camionero para empezar.</p>
-          <Link to="/camioneros/nuevo" className="btn btn-primary">
-            + Nuevo camionero
+          <p className="empty-state-text">No hay conductores registrados</p>
+          <p className="empty-state-sub">Añade tu primer conductor para empezar.</p>
+          <Link to="/conductores/nuevo" className="btn btn-primary">
+            + Nuevo conductor
           </Link>
         </div>
       )}
@@ -61,7 +62,7 @@ export const CamionerosPage = () => {
                     </span>
                   </td>
                   <td>
-                    <Link to={`/camioneros/${c.dni}`} className="btn btn-sm btn-outline">
+                    <Link to={`/conductores/${c.dni}`} className="btn btn-sm btn-outline">
                       Ver detalle →
                     </Link>
                   </td>

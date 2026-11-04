@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { fetchTransportes, deleteTransporte as apiDeleteTransporte } from '../api/transporteApiService';
+import { saveTransportesToCache } from '../../offline/transportesCache';
 import type { Transporte } from '../types/transporte.types';
 
 export const useTransportes = () => {
@@ -14,6 +15,9 @@ export const useTransportes = () => {
       if (!signal?.aborted) {
         setTransportes(data);
         setError(null);
+        if (Array.isArray(data)) {
+          void saveTransportesToCache(data).catch(() => undefined);
+        }
       }
     } catch {
       if (signal?.aborted) return;

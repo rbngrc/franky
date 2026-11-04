@@ -11,6 +11,7 @@ export type Parcela = {
   areaMetrosCuadrados?: number | null;
   municipio?: string;
   provincia?: string;
+  datosExtra?: Record<string, string> | null;
   region?: string;
   datosFromSigpac?: boolean;
   deforestacionOk?: boolean | null;
@@ -30,6 +31,7 @@ export type ParcelaUpdateData = {
   referenciaCatastral?: string | null;
   municipio?: string | null;
   provincia?: string | null;
+  datosExtra?: Record<string, string> | null;
   deforestacionOk?: boolean | null;
   produccionLegalOk?: boolean | null;
   certificacionPefc?: boolean;
@@ -82,6 +84,7 @@ export type SigpacParcelaDTO = {
   usoSigpac: string | null;
   geometria: string; // GeoJSON en string
   referenciaCatastral?: string | null;
+  datosExtra?: Record<string, string> | null;
 };
 
 export interface MunicipioFeatureProperties {

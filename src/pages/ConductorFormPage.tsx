@@ -9,7 +9,8 @@ interface FieldErrors {
   apellidos?: string;
 }
 
-export const CamioneroFormPage = () => {
+export const ConductorFormPage = () => {
+
   const { dni: editDni } = useParams<{ dni: string }>();
   const navigate = useNavigate();
   const isEditing = Boolean(editDni);
@@ -65,7 +66,7 @@ export const CamioneroFormPage = () => {
       } else {
         await createCamionero(form);
       }
-      navigate('/camioneros');
+      navigate('/conductores');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Error al guardar camionero');
     } finally {
@@ -84,9 +85,9 @@ export const CamioneroFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <Link to="/camioneros" className="back-link">&larr; Volver</Link>
+      <Link to="/conductores" className="back-link">&larr; Volver</Link>
       <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar camionero' : 'Nuevo camionero'}
+        {isEditing ? 'Editar conductor' : 'Nuevo conductor'}
       </h1>
 
       {error && <div className="error-box">{error}</div>}
@@ -163,7 +164,7 @@ export const CamioneroFormPage = () => {
         </div>
 
         <button type="submit" disabled={saving} className="btn btn-primary" style={{ marginTop: '0.5rem' }}>
-          {saving ? 'Guardando...' : (isEditing ? 'Actualizar camionero' : 'Guardar camionero')}
+          {saving ? 'Guardando...' : (isEditing ? 'Actualizar conductor' : 'Guardar conductor')}
         </button>
       </form>
     </div>

@@ -1,0 +1,73 @@
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.online {
+  color: #E8F5E9;
+  background: rgba(76, 175, 80, 0.25);
+}
+
+.online .dot {
+  background: #66BB6A;
+  box-shadow: 0 0 6px #66BB6A;
+  animation: superPulse 2s ease-in-out infinite;
+}
+
+.pending {
+  color: #FFF8E1;
+  background: rgba(255, 193, 7, 0.25);
+}
+
+.pending .dot,
+.syncing .dot {
+  background: #FFC107;
+  box-shadow: 0 0 6px #FFC107;
+  animation: superPulse 1.2s ease-in-out infinite;
+}
+
+.syncing {
+  color: #E3F2FD;
+  background: rgba(33, 150, 243, 0.25);
+}
+
+.error {
+  color: #FFEBEE;
+  background: rgba(244, 67, 54, 0.35);
+}
+
+.error .dot {
+  background: #EF5350;
+  box-shadow: 0 0 6px #EF5350;
+}
+
+.offline {
+  color: #FFEBEE;
+  background: rgba(244, 67, 54, 0.3);
+}
+
+.offline .dot {
+  background: #EF5350;
+  box-shadow: 0 0 6px #EF5350;
+}
+
+@keyframes superPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}

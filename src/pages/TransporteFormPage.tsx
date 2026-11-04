@@ -6,6 +6,7 @@ import { useCamiones } from '../features/camiones/hooks/useCamiones';
 import { useCamioneros } from '../features/camioneros/hooks/useCamioneros';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 import { useCentros } from '../features/centros/hooks/useCentros';
+import { useExpedientes } from '../features/expedientes/hooks/useExpedientes';
 import { TIPO_MADERA_OPTIONS } from '../constants/madera';
 
 interface FieldErrors {
@@ -24,11 +25,14 @@ export const TransporteFormPage = () => {
   const { camiones } = useCamiones();
   const { camioneros } = useCamioneros();
   const { centros } = useCentros();
+  const { expedientes } = useExpedientes();
 
   const [form, setForm] = useState({
     parcelaId: '', camionMatricula: '', camioneroDni: '',
     fechaCarga: new Date().toISOString().split('T')[0],
     toneladasCargadas: 0, tipoMadera: 'PINO', destino: '', centroId: undefined as number | undefined,
+    expedienteId: undefined as number | undefined,
+    remolqueMatricula: '',
     ddsOk: null as boolean | null, referenciaDds: '',
     cocPefcOk: false, referenciaCocPefc: '',
     cocSureOk: false, geiReduccionOk: null as boolean | null, referenciaCocSure: '',
@@ -54,6 +58,8 @@ export const TransporteFormPage = () => {
             tipoMadera: data.tipoMadera,
             destino: data.destino,
             centroId: data.centroId,
+            expedienteId: data.expedienteId,
+            remolqueMatricula: data.remolqueMatricula || '',
             ddsOk: data.ddsOk ?? null,
             referenciaDds: data.referenciaDds || '',
             cocPefcOk: data.cocPefcOk || false,
@@ -233,6 +239,33 @@ export const TransporteFormPage = () => {
             className={`form-input ${fieldErrors.destino ? 'error' : ''}`}
           />
           {fieldErrors.destino && <span className="form-error">{fieldErrors.destino}</span>}
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Expediente</label>
+          <select
+            value={form.expedienteId ?? ''}
+            onChange={(e) => update('expedienteId', e.target.value ? Number(e.target.value) : undefined)}
+            className="form-select"
+          >
+            <option value="">Sin expediente asignado</option>
+            {expedientes.map((ex) => (
+              <option key={ex.id} value={ex.id}>
+                {ex.codigoExpediente}{ex.numeroLicitacion ? ` — ${ex.numeroLicitacion}` : ''}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="form-group">
+          <label className="form-label">Remolque (matrícula)</label>
+          <input
+            type="text"
+            value={form.remolqueMatricula}
+            onChange={(e) => update('remolqueMatricula', e.target.value)}
+            className="form-input"
+            placeholder="Ej: R-5678XYZ"
+          />
         </div>
 
         <details style={{ marginTop: '1rem', border: '1px solid #E8EDF2', borderRadius: '8px', padding: '0.5rem' }}>

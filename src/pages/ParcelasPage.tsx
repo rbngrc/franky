@@ -6,15 +6,18 @@ export const ParcelasPage = () => {
     `${styles.navLink} ${isActive ? styles.active : ''}`;
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '1200px', margin: '0 auto' }}>
+    <div style={{ padding: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
       <header style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
         <h1 className={styles.title}>Gestión de Parcelas</h1>
-        <nav style={{ display: 'flex', gap: '1rem' }}>
+        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
           <NavLink to="/parcelas/tabla" className={navClass}>
             Listado de parcelas
           </NavLink>
           <NavLink to="/parcelas/crear-sigpac" className={navClass}>
             Añadir parcela desde SIGPAC
+          </NavLink>
+          <NavLink to="/parcelas/importar-gis" className={navClass}>
+            Importar desde archivo GIS
           </NavLink>
         </nav>
       </header>
