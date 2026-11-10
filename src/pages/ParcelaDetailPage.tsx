@@ -1,6 +1,8 @@
 import { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { useParcela } from '../features/parcelas/hooks/useParcela'
+import { deleteParcela } from '../features/parcelas/api/parcelaApiService'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { useLotes } from '../features/lotes/hooks/useLotes'
 import { usePersonal } from '../features/personal/hooks/usePersonal'
 import { useMaquinaria } from '../features/maquinaria/hooks/useMaquinaria'
@@ -21,6 +23,7 @@ const TIPOS_MAQUINARIA = ['Desbrozadora', 'Tractor', 'Motosierra', 'Ahoyadora', 
 
 export const ParcelaDetailPage = () => {
   const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
   const { parcela, isLoading, error, reload, updateParcela } = useParcela(id)
   const { lotes, isLoading: lotesLoading, createLote, updateLote, deleteLote } = useLotes(id)
   const { personal, isLoading: personalLoading, createPersonal, deletePersonal } = usePersonal(id)
@@ -31,6 +34,7 @@ export const ParcelaDetailPage = () => {
   const [saving, setSaving] = useState(false)
   const [editForm, setEditForm] = useState<ParcelaUpdateData>({})
   const [editError, setEditError] = useState<string | null>(null)
+  const [confirmDelete, setConfirmDelete] = useState(false)
   const [mapLightboxOpen, setMapLightboxOpen] = useState(false)
   const [loteLightbox, setLoteLightbox] = useState<Polygon | null>(null)
 
@@ -205,6 +209,16 @@ export const ParcelaDetailPage = () => {
   const efExtra = (field: string, value: string) =>
     setEditForm((p) => ({ ...p, datosExtra: { ...(p.datosExtra || {}), [field]: value } }))
 
+  const handleDelete = async () => {
+    if (!id) return
+    try {
+      await deleteParcela(id)
+      navigate('/parcelas/tabla')
+    } catch {
+      // error silencioso
+    }
+  }
+
   if (isLoading) return <p className="text-muted">Cargando detalles de la parcela...</p>
   if (error) return <p className="text-danger">{error}</p>
   if (!parcela) return <p className="text-muted">Parcela no encontrada.</p>
@@ -214,9 +228,6 @@ export const ParcelaDetailPage = () => {
 
   return (
     <div className="page-container">
-      <Link to="/parcelas/tabla" className="back-link">
-        &larr; Volver a parcelas
-      </Link>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '1rem' }}>
         <h1 className="page-title" style={{ marginBottom: 0 }}>
           {parcela.nombre}
@@ -231,9 +242,14 @@ export const ParcelaDetailPage = () => {
             </button>
           </div>
         ) : (
-          <button onClick={startEditing} className="btn btn-primary btn-sm">
-            Editar parcela
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={startEditing} className="btn btn-primary btn-sm">
+              Editar parcela
+            </button>
+            <button onClick={() => setConfirmDelete(true)} className="btn btn-outline-danger btn-sm">
+              Eliminar
+            </button>
+          </div>
         )}
       </div>
 
@@ -1129,6 +1145,14 @@ export const ParcelaDetailPage = () => {
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar parcela"
+        message={`¿Eliminar la parcela "${parcela.nombre}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   )
 }

@@ -10,7 +10,7 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { ChartCard } from '../ChartCard';
-import { formatToneladas, formatEntero, PALETTE } from '../../utils/formatters';
+import { formatMetrosCubicos, formatEntero, PALETTE } from '../../utils/formatters';
 import type { MonthValue, LabelValue } from '../../types/dashboard.types';
 
 interface Props {
@@ -32,7 +32,7 @@ export const ToneladasPorMesChart = ({ toneladas, transportes }: Props) => {
       title="Evolución mensual de carga"
       subtitle={
         total > 0
-          ? `${formatToneladas(total)} en los últimos 12 meses`
+          ? `${formatMetrosCubicos(total)} en los últimos 12 meses`
           : 'Últimos 12 meses'
       }
       isEmpty={isEmpty}
@@ -45,12 +45,12 @@ export const ToneladasPorMesChart = ({ toneladas, transportes }: Props) => {
           <YAxis yAxisId="right" orientation="right" tick={{ fontSize: 11 }} stroke="#90A4AE" />
           <Tooltip
             formatter={(v: unknown, name?: unknown) =>
-              name === 'Toneladas' ? formatToneladas(Number(v)) : formatEntero(Number(v))
+              name === 'Metros cúbicos' ? formatMetrosCubicos(Number(v)) : formatEntero(Number(v))
             }
             contentStyle={{ borderRadius: 8, border: '1px solid #E8EDF2', fontSize: '0.8rem' }}
           />
           <Legend wrapperStyle={{ fontSize: '0.75rem' }} />
-          <Bar yAxisId="left" dataKey="toneladas" name="Toneladas" fill={PALETTE[0]} radius={[4, 4, 0, 0]} maxBarSize={32} />
+          <Bar yAxisId="left" dataKey="toneladas" name="Metros cúbicos" fill={PALETTE[0]} radius={[4, 4, 0, 0]} maxBarSize={32} />
           <Line
             yAxisId="right"
             type="monotone"

@@ -1,3 +1,5 @@
+export type TipoVehiculo = 'CAMION' | 'REMOLQUE';
+
 export type Camion = {
   matricula: string;
   marca: string;
@@ -7,6 +9,7 @@ export type Camion = {
   tara: number;
   activo: boolean;
   remolqueMatricula?: string;
+  tipo?: TipoVehiculo;
 };
 
 export type CamionFormData = {
@@ -17,4 +20,5 @@ export type CamionFormData = {
   capacidadM3?: number;
   tara: number;
   remolqueMatricula?: string;
+  tipo?: TipoVehiculo;
 };

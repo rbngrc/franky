@@ -1,0 +1,146 @@
+.panel {
+  margin-top: 0.75rem;
+  border: 1px solid #E8EDF2;
+  border-radius: 8px;
+  background: #F5F7FA;
+  padding: 0.75rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #0D47A1;
+}
+
+.note {
+  font-size: 0.75rem;
+  color: #546E7A;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 22rem;
+  overflow-y: auto;
+}
+
+.itemFar {
+  opacity: 0.75;
+}
+
+.farSection {
+  margin-top: 0.6rem;
+  border-top: 1px dashed #CFD8DC;
+  padding-top: 0.5rem;
+}
+
+.farSummary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #546E7A;
+  margin-bottom: 0.4rem;
+}
+
+.item {
+  border: 1px solid #E8EDF2;
+  border-radius: 8px;
+  background: #fff;
+  padding: 0.6rem 0.7rem;
+}
+
+.itemUnverified {
+  border-left: 4px solid #F57F17;
+}
+
+.itemVerified {
+  border-left: 4px solid #2E7D32;
+}
+
+.itemHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.name {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #263238;
+}
+
+.meta {
+  font-size: 0.8rem;
+  color: #546E7A;
+  margin-top: 0.2rem;
+}
+
+.badge {
+  font-size: 0.7rem;
+  padding: 1px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.badgeVerified {
+  background: #E8F5E9;
+  color: #2E7D32;
+}
+
+.badgeUnverified {
+  background: #FFF3E0;
+  color: #E65100;
+}
+
+.badgeSource {
+  background: #E3F2FD;
+  color: #1565C0;
+}
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.navLink {
+  font-size: 0.8rem;
+  color: #1565C0;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.navLink:hover {
+  text-decoration: underline;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}

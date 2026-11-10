@@ -83,7 +83,7 @@ npm run preview
 src/
 ├── pages/            # Páginas por ruta (incluye conductor/ y agente/)
 ├── features/         # Lógica por dominio
-│   ├── auth/         # AuthContext, LoginPage (scaffold), API de login
+│   ├── auth/         # AuthContext, mockRoles, API de login (scaffold)
 │   ├── camera/       # Captura de cámara y preprocesado de imagen
 │   ├── config/       # RoleContext, UnidadContext y selectores
 │   ├── dashboard/    # KPIs, tipos, hooks y gráficas (recharts)
@@ -115,7 +115,7 @@ e2e/                  # Tests Playwright
 
 ## Limitaciones conocidas
 
-- **Autenticación**: existen `AuthContext`, `AuthApiService.login`, `LoginPage` y `ProtectedRoute`, pero el router aún no monta `/login` ni protege las rutas, y `ApiClient` no envía token. El selector de rol es la vía operativa actual.
+- **Autenticación**: `/login` es un mockup de selección de rol (sin credenciales ni token), con sesión en `sessionStorage` y redirección a `/login` si no hay sesión. Existen `AuthContext`, `AuthApiService.login` y `ProtectedRoute`, pero no hay autenticación real ni envío de token desde `ApiClient`. La cabecera muestra «Mi perfil» y «Cerrar sesión».
 - **Unidades t/m³**: `UnidadContext` y `UnidadSelector` existen, pero el selector no está montado en el layout y los formularios sólo editan toneladas. Los tipos admiten `capacidadM3` y `metrosCubicos`.
 - **Offline**: se cachean transportes; la outbox sólo encola `POST`/`PUT` y no hay resolución de conflictos ni Background Sync.
 - **OCR**: depende de la calidad de la foto y de la descarga inicial del modelo `spa` de Tesseract.

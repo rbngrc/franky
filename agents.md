@@ -12,14 +12,14 @@ Eres un asistente de desarrollo full-stack para **Franky**, aplicación de gesti
 ## Estado del proyecto (nov 2026)
 
 - **Roles**: `ADMIN_GENERAL`, `ADMIN_CHOPOS`, `ADMIN_FORESTAL`, `EMPRESA`, `CONDUCTOR`, `AGENTE_FORESTAL_OPERARIO`, `DIOS`.
-- **RoleContext** conectado al selector de la cabecera; el sidebar filtra por rol. `DIOS` puede previsualizar conductor/agente.
+- **RoleContext**: el rol se elige en `/login` (mockup, desplegable de roles con descripción; sesión en `sessionStorage`); la cabecera muestra **Mi perfil** y «Cerrar sesión». El sidebar filtra por rol. `DIOS` puede previsualizar conductor/agente.
 - **Conductores**: las páginas nuevas usan `Conductor*` y rutas `/conductores` + `/conductor`; la API y la feature interna siguen llamándose `camioneros`.
 - **Inicio** es el home (`/`); `DIOS`/conductor/agente ven su propia experiencia.
 - **Panel de Control** en `/dashboard` con KPIs, certificaciones, gráficas recharts, mapa de rutas y calendario.
 - **Expedientes**: CRUD completo y asociación a proveedor/transporte.
 - **Offline/PWA**: Dexie + outbox + `useTransportesOfflineFirst`; service worker con `vite-plugin-pwa`/Workbox.
 - **Cámara/OCR/pesaje**: `features/camera`, `features/ocr`, `features/pesaje`; 4 fotos obligatorias (frente, trasera, lateral, ticket).
-- **Auth**: `AuthContext`, `AuthApiService.login`, `useLogin`, `LoginPage` y `ProtectedRoute` existen, pero `/login` aún no está montado ni las rutas protegidas.
+- **Auth**: `/login` montado como mockup de selección de rol (sin credenciales/token); `AuthContext`, `AuthApiService.login`, `useLogin` y `ProtectedRoute` existen, pero no hay autenticación real ni envío de token desde `ApiClient`.
 - **Unidades**: `UnidadContext`/`UnidadSelector` existen, pero el selector no está montado; los formularios editan toneladas.
 - **Tipos ampliados**: `capacidadM3`, `metrosCubicos`, `remolqueMatricula`, `expedienteId`, pesos/ticket/fotos.
 
@@ -113,7 +113,7 @@ lagalley/
 ├── src/
 │   ├── pages/                 # Páginas por ruta (Conductor*, Agente*, Expediente*…)
 │   ├── features/              # Lógica por dominio (api / hooks / components / types)
-│   │   ├── auth/              # AuthContext, LoginPage (scaffold), API de login
+│   │   ├── auth/              # AuthContext, mockRoles, API de login (scaffold)
 │   │   ├── camera/            # Captura y preprocesado de imagen
 │   │   ├── config/            # RoleContext, UnidadContext, selectores
 │   │   ├── dashboard/         # KPIs, tipos, hooks, gráficas y mapa de rutas

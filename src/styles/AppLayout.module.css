@@ -22,6 +22,22 @@
   position: relative;
 }
 
+.content {
+  position: relative;
+  z-index: 1;
+}
+
+.watermark {
+  position: fixed;
+  right: 1vw;
+  bottom: -2vh;
+  color: var(--franky-blue);
+  opacity: 0.05;
+  pointer-events: none;
+  user-select: none;
+  z-index: 0;
+}
+
 .mainContentMobile {
   padding-bottom: 4.2rem;
 }
@@ -29,5 +45,9 @@
 @media (max-width: 900px) {
   .pageContent {
     padding: 1rem;
+  }
+
+  .watermark {
+    display: none;
   }
 }

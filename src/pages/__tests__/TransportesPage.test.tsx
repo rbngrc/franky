@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { TransportesPage } from '../TransportesPage';
 import * as useTransportesModule from '../../features/transportes/hooks/useTransportes';
@@ -58,5 +59,24 @@ describe('TransportesPage', () => {
 
     renderPage();
     expect(screen.getByText('Exportar CSV')).toBeInTheDocument();
+  });
+
+  it('ordena por defecto de más reciente a más antiguo', () => {
+    vi.mocked(useTransportesModule.useTransportes).mockReturnValue({ transportes: mockTransportes, isLoading: false, error: null, reload: async () => {}, deleteTransporte: async () => {} });
+
+    renderPage();
+    const matriculas = screen.getAllByRole('row').map((r) => r.textContent ?? '');
+    expect(matriculas.findIndex((t) => t.includes('5678DEF'))).toBeLessThan(
+      matriculas.findIndex((t) => t.includes('1234ABC')),
+    );
+  });
+
+  it('filtra por fecha seleccionada', async () => {
+    vi.mocked(useTransportesModule.useTransportes).mockReturnValue({ transportes: mockTransportes, isLoading: false, error: null, reload: async () => {}, deleteTransporte: async () => {} });
+
+    renderPage();
+    await userEvent.type(screen.getByLabelText(/fecha/i), '2026-05-01');
+    expect(screen.getByText('1234ABC')).toBeInTheDocument();
+    expect(screen.queryByText('5678DEF')).not.toBeInTheDocument();
   });
 });

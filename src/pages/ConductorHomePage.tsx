@@ -89,7 +89,7 @@ export const ConductorHomePage = () => {
                 <div><strong>Destino:</strong> {t.destino || t.centroNombre || '-'}</div>
                 <div><strong>Parcela:</strong> {t.parcelaNombre || t.parcelaId}</div>
                 <div><strong>Fecha de carga:</strong> {new Date(t.fechaCarga).toLocaleDateString()}</div>
-                <div><strong>Toneladas:</strong> {t.toneladasCargadas} t</div>
+                <div><strong>Metros cúbicos:</strong> {t.toneladasCargadas} m³</div>
                 <div><strong>Madera:</strong> {tipoMaderaLabel(t.tipoMadera) || t.tipoMadera}</div>
                 {t.pesoNetoKg != null && (
                   <div><strong>Peso neto medido:</strong> {t.pesoNetoKg} kg</div>

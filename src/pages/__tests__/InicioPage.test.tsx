@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { InicioPage } from '../InicioPage';
 
@@ -10,40 +10,44 @@ const renderInicio = () =>
   );
 
 describe('InicioPage', () => {
-  it('renders the title', () => {
+  it('renders the description', () => {
     renderInicio();
-    expect(screen.getByRole('heading', { name: 'Inicio' })).toBeInTheDocument();
+    expect(screen.getByText('Sistema de gestión forestal y certificaciones')).toBeInTheDocument();
   });
 
-  it('renders the modules and quick actions sections', () => {
+  it('renders the modules menu', () => {
     renderInicio();
     expect(screen.getByText(/Módulos/)).toBeInTheDocument();
-    expect(screen.getByText(/Acciones rápidas/)).toBeInTheDocument();
+    expect(screen.queryByText(/Acciones rápidas/)).not.toBeInTheDocument();
   });
 
-  it('links to every main module', () => {
+  it('renders every module in the same order as the sidebar', () => {
     renderInicio();
-    const modules = [
+    const orden = [
+      'Panel de Control',
       'Expedientes',
       'Parcelas',
-      'Camiones',
+      'Vehículos',
       'Conductores',
       'Transportes',
       'Centros',
       'Proveedores',
       'Cumplimiento',
-      'Panel de Control',
     ];
-    modules.forEach((m) => {
-      expect(screen.getByRole('link', { name: new RegExp(m) })).toBeInTheDocument();
-    });
+    const botones = screen.getAllByRole('button').map((b) => b.textContent ?? '');
+    orden.forEach((m, i) => expect(botones[i]).toContain(m));
   });
 
-  it('links to the creation forms', () => {
+  it('opens the submenu of a module with consultar and crear nuevo', () => {
     renderInicio();
-    expect(screen.getByRole('link', { name: /Añadir parcela desde SIGPAC/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Registrar nuevo camión/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Registrar nuevo transporte/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Registrar nuevo conductor/ })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: /Transportes/ }));
+    expect(screen.getByRole('link', { name: 'Consultar' })).toHaveAttribute('href', '/transportes');
+    expect(screen.getByRole('link', { name: 'Nuevo transporte' })).toHaveAttribute('href', '/transportes/nuevo');
+
+    fireEvent.click(screen.getByRole('button', { name: /Conductores/ }));
+    expect(screen.queryByRole('link', { name: 'Nuevo transporte' })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: 'Consultar' })).toHaveAttribute('href', '/conductores');
+    expect(screen.getByRole('link', { name: 'Nuevo conductor' })).toHaveAttribute('href', '/conductores/nuevo');
   });
 });

@@ -38,6 +38,14 @@
   font-weight: 500;
 }
 
+.page-desc {
+  font-family: 'Inter', sans-serif;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+  font-weight: 500;
+  margin: 0;
+}
+
 /* ── Buttons ──────────────────────────────── */
 .btn {
   display: inline-flex;
@@ -90,6 +98,15 @@
   background: rgba(21, 101, 192, 0.06);
 }
 
+.btn-outline-danger {
+  background: white;
+  color: var(--franky-red);
+  border: 1px solid var(--franky-red);
+}
+.btn-outline-danger:hover {
+  background: rgba(229, 57, 53, 0.06);
+}
+
 .btn-danger {
   background: none;
   border: none;
@@ -127,6 +144,17 @@
 }
 .back-link:hover {
   color: var(--franky-blue-dark);
+}
+
+.back-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.25rem;
+  margin-bottom: 1rem;
+}
+
+.back-links .back-link {
+  margin-bottom: 0;
 }
 
 /* ── Cards ────────────────────────────────── */
@@ -204,6 +232,11 @@
 .badge-warning {
   background: #FFF8E1;
   color: #F57F17;
+}
+
+.badge-info {
+  background: #E3F2FD;
+  color: #1565C0;
 }
 
 .badge-danger {

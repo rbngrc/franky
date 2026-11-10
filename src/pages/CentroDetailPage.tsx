@@ -1,5 +1,8 @@
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useCentro } from '../features/centros/hooks/useCentro';
+import { deleteCentro } from '../features/centros/api/centroApiService';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { applyDefaultLeafletIcon } from '../lib/leafletIcon';
 applyDefaultLeafletIcon();
@@ -8,6 +11,17 @@ export const CentroDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { centro, isLoading, error } = useCentro(id ? Number(id) : null);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const handleDelete = async () => {
+    if (!centro) return;
+    try {
+      await deleteCentro(centro.id);
+      navigate('/centros');
+    } catch {
+      // error silencioso
+    }
+  };
 
   if (isLoading) return <p className="text-muted" style={{ marginTop: '1rem' }}>Cargando centro...</p>;
   if (error) return <p className="text-danger" style={{ marginTop: '1rem' }}>{error}</p>;
@@ -19,9 +33,14 @@ export const CentroDetailPage = () => {
     <div className="page-container" style={{ maxWidth: '800px' }}>
       <div className="detail-header">
         <h1 className="page-title">{centro.nombre}</h1>
-        <button onClick={() => navigate(`/centros/editar/${centro.id}`)} className="btn btn-primary btn-sm">
-          Editar
-        </button>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <button onClick={() => navigate(`/centros/editar/${centro.id}`)} className="btn btn-primary btn-sm">
+            Editar
+          </button>
+          <button onClick={() => setConfirmDelete(true)} className="btn btn-outline-danger btn-sm">
+            Eliminar
+          </button>
+        </div>
       </div>
 
       <div className="card" style={{ marginBottom: '1rem' }}>
@@ -68,9 +87,13 @@ export const CentroDetailPage = () => {
         </div>
       )}
 
-      <button onClick={() => navigate('/centros')} className="btn btn-secondary" style={{ marginTop: '1rem' }}>
-        ← Volver
-      </button>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar centro"
+        message={`¿Eliminar el centro "${centro.nombre}"?`}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 };

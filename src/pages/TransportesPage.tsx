@@ -1,13 +1,13 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useTransportes } from '../features/transportes/hooks/useTransportes';
 import { CalendarWidget } from '../components/CalendarWidget';
-import { ConfirmDialog } from '../components/ConfirmDialog';
 import { tipoMaderaLabel } from '../constants/madera';
 import { escapeCSVCell } from '../features/transportes/utils/csv';
+import styles from '../styles/TransportesPage.module.css';
 
 const exportToCSV = (data: ReturnType<typeof useTransportes>['transportes']) => {
-  const headers = ['Código Trazabilidad', 'Camión', 'Camionero', 'Madera', 'Toneladas', 'Fecha', 'Destino', 'EUDR', 'PEFC', 'SURE'];
+  const headers = ['Código Trazabilidad', 'Camión', 'Camionero', 'Madera', 'Metros cúbicos', 'Fecha', 'Destino', 'EUDR', 'PEFC', 'SURE'];
   const rows = data.map((t) => [
     t.codigoTrazabilidad, t.camionMatricula,
     t.camioneroNombre || t.camioneroDni, tipoMaderaLabel(t.tipoMadera),
@@ -28,31 +28,33 @@ const exportToCSV = (data: ReturnType<typeof useTransportes>['transportes']) => 
 };
 
 export const TransportesPage = () => {
-  const { transportes, isLoading, error, deleteTransporte } = useTransportes();
-  const handleExport = useCallback(() => exportToCSV(transportes), [transportes]);
-  const [pendingDelete, setPendingDelete] = useState<number | null>(null);
+  const { transportes, isLoading, error } = useTransportes();
+  const [fechaFiltro, setFechaFiltro] = useState('');
+  const [orden, setOrden] = useState<'desc' | 'asc'>('desc');
 
-  const handleDelete = async () => {
-    if (pendingDelete === null) return;
-    try {
-      await deleteTransporte(pendingDelete);
-      setPendingDelete(null);
-    } catch {
-      // error silencioso
-    }
-  };
+  const transportesVisibles = useMemo(() => {
+    const filtrados = fechaFiltro
+      ? transportes.filter((t) => t.fechaCarga.slice(0, 10) === fechaFiltro)
+      : transportes;
+    return [...filtrados].sort((a, b) => {
+      const dif = new Date(a.fechaCarga).getTime() - new Date(b.fechaCarga).getTime();
+      return orden === 'asc' ? dif : -dif;
+    });
+  }, [transportes, fechaFiltro, orden]);
+
+  const handleExport = useCallback(() => exportToCSV(transportesVisibles), [transportesVisibles]);
 
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Transportes</h1>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+        <p className="page-desc">Cargas, trazabilidad y rutas</p>
+        <div className={styles.acciones}>
           {transportes.length > 0 && (
-            <button onClick={handleExport} className="btn btn-outline">
+            <button onClick={handleExport} className={`btn btn-outline ${styles.botonGrande}`}>
               Exportar CSV
             </button>
           )}
-          <Link to="/transportes/nuevo" className="btn btn-primary">
+          <Link to="/transportes/nuevo" className={`btn btn-primary ${styles.botonGrande}`}>
             + Nuevo transporte
           </Link>
         </div>
@@ -81,16 +83,41 @@ export const TransportesPage = () => {
       )}
 
       {transportes.length > 0 && (
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-          <div style={{ flex: 1, minWidth: 0 }} className="table-wrapper">
+        <>
+          <div className={styles.calendarioFijo}>
+            <CalendarWidget transportes={transportes} />
+          </div>
+
+          <div className={styles.filtros}>
+            <label>
+              Fecha
+              <input
+                type="date"
+                value={fechaFiltro}
+                onChange={(e) => setFechaFiltro(e.target.value)}
+              />
+            </label>
+            <label>
+              Orden
+              <select value={orden} onChange={(e) => setOrden(e.target.value as 'asc' | 'desc')}>
+                <option value="desc">Más recientes primero</option>
+                <option value="asc">Más antiguos primero</option>
+              </select>
+            </label>
+            {fechaFiltro && (
+              <button className="btn btn-sm btn-outline" onClick={() => setFechaFiltro('')}>
+                Ver todas
+              </button>
+            )}
+          </div>
+
+          <div className="table-wrapper">
             <table className="table" style={{ minWidth: '750px' }}>
               <thead>
                 <tr>
-                  <th>Código Trazabilidad</th>
-                  <th>Camión</th>
-                  <th>Camionero</th>
+                  <th>Nombre</th>
                   <th>Madera</th>
-                  <th>Toneladas</th>
+                  <th>Metros cúbicos</th>
                   <th>Fecha</th>
                   <th>EUDR</th>
                   <th>PEFC</th>
@@ -99,25 +126,20 @@ export const TransportesPage = () => {
                 </tr>
               </thead>
               <tbody>
-                {transportes.map((t) => (
+                {transportesVisibles.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className={styles.sinResultados}>
+                      No hay transportes en la fecha seleccionada
+                    </td>
+                  </tr>
+                )}
+                {transportesVisibles.map((t) => (
                   <tr key={t.id}>
                     <td>
-                      <Link to={`/transportes/${t.id}`} style={{
-                        fontFamily: "'Courier New', monospace",
-                        fontWeight: 600,
-                        fontSize: '0.9rem',
-                        letterSpacing: '0.5px',
-                        background: '#f5f5f5',
-                        padding: '3px 8px',
-                        borderRadius: '4px',
-                        textDecoration: 'none',
-                        color: '#1565C0',
-                      }}>
-                        {t.codigoTrazabilidad}
+                      <Link to={`/transportes/${t.id}`} style={{ fontWeight: 600, textDecoration: 'none', color: '#1565C0' }}>
+                        {(t.nombre || `Transporte #${t.id}`).toUpperCase()}
                       </Link>
                     </td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{t.camionMatricula}</td>
-                    <td style={{ whiteSpace: 'nowrap' }}>{t.camioneroNombre || t.camioneroDni}</td>
                     <td>{tipoMaderaLabel(t.tipoMadera)}</td>
                     <td>{t.toneladasCargadas}</td>
                     <td style={{ whiteSpace: 'nowrap' }}>{new Date(t.fechaCarga).toLocaleDateString()}</td>
@@ -140,27 +162,15 @@ export const TransportesPage = () => {
                       <Link to={`/transportes/${t.id}`} className="btn btn-sm btn-outline">
                         Ver detalle →
                       </Link>
-                      {' | '}
-                      <button onClick={() => setPendingDelete(t.id)} className="btn btn-sm btn-danger">
-                        Eliminar
-                      </button>
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <CalendarWidget transportes={transportes} />
-        </div>
+        </>
       )}
 
-      <ConfirmDialog
-        open={pendingDelete !== null}
-        title="Eliminar transporte"
-        message="¿Eliminar este transporte? Esta acción no se puede deshacer."
-        onConfirm={handleDelete}
-        onCancel={() => setPendingDelete(null)}
-      />
     </div>
   );
 };

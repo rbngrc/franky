@@ -63,7 +63,7 @@ export const EudrDashboardPage = () => {
 
   return (
     <div className="page-container">
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>Panel de Cumplimiento Certificaciones</h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>Certificaciones EUDR, PEFC y SURE</p>
 
       <div style={{
         display: 'grid',

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ExpedienteApiService } from '../features/expedientes/api/ExpedienteApiService';
 import { useProveedores } from '../features/proveedores/hooks/useProveedores';
 import { LoadingIndicator } from '../components/LoadingIndicator';
@@ -111,10 +111,9 @@ export const ExpedienteFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <Link to="/expedientes" className="back-link">&larr; Volver</Link>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar expediente' : 'Nuevo expediente'}
-      </h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>
+        {isEditing ? 'Datos del expediente' : 'Alta de un nuevo expediente'}
+      </p>
 
       {error && <div className="error-box">{error}</div>}
 

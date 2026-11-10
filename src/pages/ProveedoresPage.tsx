@@ -7,7 +7,7 @@ export const ProveedoresPage = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Proveedores</h1>
+        <p className="page-desc">Orígenes y declaraciones DDL</p>
         <Link to="/proveedores/nuevo" className="btn btn-primary">
           + Nuevo proveedor
         </Link>

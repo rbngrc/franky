@@ -79,9 +79,9 @@ export const CentroFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar centro' : 'Nuevo centro'}
-      </h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>
+        {isEditing ? 'Datos del centro de recepción' : 'Alta de un nuevo centro de recepción'}
+      </p>
 
       <form onSubmit={handleSubmit} className="form-card">
         {errorMsg && <p className="error-message" style={{ marginBottom: '0.75rem' }}>{errorMsg}</p>}

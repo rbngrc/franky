@@ -8,7 +8,7 @@ export const ConductoresPage = () => {
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Conductores</h1>
+        <p className="page-desc">Conductores y carnés profesionales</p>
         <Link to="/conductores/nuevo" className="btn btn-primary">
           + Nuevo conductor
         </Link>

@@ -1,5 +1,5 @@
 .header {
-  padding: 0.75rem 2rem;
+  padding: 1.1rem 2rem;
   background: linear-gradient(135deg, var(--franky-blue-dark) 0%, var(--franky-blue) 100%);
   border-bottom: 3px solid var(--franky-gold);
   display: flex;
@@ -11,13 +11,23 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
+.titleWrap {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  text-align: center;
+  max-width: 55%;
+  white-space: nowrap;
+}
+
 .title {
   margin: 0;
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 1.25rem;
-  letter-spacing: 2px;
+  font-size: 1.8rem;
+  letter-spacing: 2.5px;
   color: #FFFFFF;
   text-transform: uppercase;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .titleAccent {
@@ -28,6 +38,7 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  margin-left: auto;
   color: rgba(255, 255, 255, 0.85);
   font-size: 0.85rem;
   font-weight: 500;
@@ -56,3 +67,118 @@
 .breadcrumb a:hover {
   color: var(--franky-gold);
 }
+
+.perfilWrap {
+  position: relative;
+}
+
+.perfilBoton {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.3rem 0.75rem 0.3rem 0.35rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.perfilBoton:hover {
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--franky-gold);
+  color: var(--franky-blue-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.perfilFlecha {
+  font-size: 0.7rem;
+  opacity: 0.9;
+}
+
+.perfilFondo {
+  position: fixed;
+  inset: 0;
+  z-index: 150;
+}
+
+.perfilMenu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  width: 270px;
+  padding: 0.9rem;
+  background: #FFFFFF;
+  border: 1px solid #E8EDF2;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+  z-index: 200;
+}
+
+.perfilNombre {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--color-text-primary);
+}
+
+.perfilRol {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--franky-blue);
+  margin-bottom: 0.6rem;
+}
+
+.perfilDato {
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.2rem 0;
+  font-size: 0.8rem;
+  color: var(--color-text-secondary);
+}
+
+.perfilDato span:last-child {
+  color: var(--color-text-primary);
+  text-align: right;
+  word-break: break-word;
+}
+
+.perfilSalir {
+  width: 100%;
+  margin-top: 0.75rem;
+  padding: 0.45rem;
+  border-radius: 8px;
+  border: 1px solid var(--franky-red);
+  background: #FFFFFF;
+  color: var(--franky-red);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.perfilSalir:hover {
+  background: rgba(229, 57, 53, 0.06);
+}
+
+@media (max-width: 700px) {
+  .perfilBoton > span:not(.avatar):not(.perfilFlecha) {
+    display: none;
+  }
+}
+

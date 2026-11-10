@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { createProveedor, updateProveedor, fetchProveedor } from '../features/proveedores/api/proveedorApiService';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
@@ -97,10 +97,9 @@ export const ProveedorFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <Link to="/proveedores" className="back-link">&larr; Volver</Link>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar proveedor' : 'Nuevo proveedor'}
-      </h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>
+        {isEditing ? 'Datos del proveedor' : 'Alta de un nuevo proveedor'}
+      </p>
 
       {error && <div className="error-box">{error}</div>}
 

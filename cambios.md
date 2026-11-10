@@ -147,3 +147,94 @@
 - OCR/QR dependen del dispositivo, permisos y navegador; requieren revisión humana.
 - El kilometraje de rutas usa la API pública de OSRM (posible rate limiting).
 - Quedan inline styles en pantallas nuevas/antiguas; la guía sigue siendo usar módulos CSS.
+
+## [0.4.2] — 2026-11-10
+
+### Inicio: menú de módulos
+- Eliminada la sección "Acciones rápidas".
+- "Módulos" pasa a un menú vertical clásico ordenado **igual que el sidebar** (Panel de Control, Expedientes, Parcelas, Vehículos, Conductores, Transportes, Centros, Proveedores, Cumplimiento).
+- Cada módulo con formulario de alta tiene una **flecha** a la derecha que abre un submenú con las acciones de creación (nuevo expediente, nueva parcela desde SIGPAC, importar GIS, nuevo vehículo, nuevo conductor, nuevo transporte, nuevo centro, nuevo proveedor). El submenú permanece abierto hasta volver a pulsar el módulo (o abrir otro) y se cierra al elegir una opción.
+- **Toda la fila abre el submenú** (ya no navega directamente): el submenú muestra primero **Consultar** (va al listado del módulo) y debajo las opciones de creación.
+- Pantallas de alta y edición (expediente, vehículo, conductor, transporte, centro y proveedor): los enlaces de vuelta **«Volver al menú»** e **«Volver a &lt;módulo&gt;»** se pintan una sola vez desde el layout (`src/components/BackLinks.tsx`, renderizado en `AppLayout`), arriba a la izquierda del contenido, en el mismo sitio en todas las pantallas.
+
+### Inicio: vuelta al menú encima del título
+- El **sidebar** mantiene marca y pie en todas las pantallas; en `/` (roles de oficina) **no muestra opciones** y deja el **mapa de relieve** a plena vista, mientras que en el resto de rutas el menú se ve **por encima del dibujo**, atenuado (`src/components/Layout/TerrenoIlustracion.tsx` + `src/styles/Terreno.module.css`).
+- El enlace **«← Volver al menú»** ya no va en la cabecera: se muestra encima del título de la página con el estilo `.back-link` de las demás pantallas (`src/components/Layout/AppLayout.tsx`), salvo en `/` y en las pantallas de alta, que ya lo incluyen en `BackLinks`.
+- El menú de módulos ocupa de nuevo todo el ancho de la tarjeta (sin ilustración lateral).
+- Cabecera: añadidas etiquetas de ruta que faltaban (`/dashboard`, `/expedientes`, `/expedientes/nuevo`, `/parcelas/importar-gis`, `/proveedores`, `/proveedores/nuevo`) para que el título no caiga en «Franky App».
+- Tests: orden del menú, apertura del submenú y enlaces de vuelta en `InicioPage.test.tsx` y `CamionFormPage.test.tsx` (165/165 OK).
+
+### Cabecera y descripciones de página
+- **Cabecera más grande y visible**: más padding, título a 1.8rem con sombra, **título centrado** (`styles.titleWrap` en `Header.module.css`). El selector de rol, el de conductor y el estado de conexión siguen a la derecha.
+- El título de la página vive en la cabecera; en el contenido, el antiguo `h1` pasa a ser una **descripción corta** con la clase `.page-desc` (`App.css`) en Inicio, Panel de Control, Expedientes, Parcelas, Vehículos, Conductores, Transportes, Centros, Proveedores y Cumplimiento.
+- Formularios de alta/edición: la descripción indica «Alta de un nuevo …» o «Datos del …» según el caso.
+- Formularios y **detalles** (vehículo, conductor, transporte, expediente, centro, proveedor y parcela): los enlaces **«← Volver al menú»** y **«← Volver a &lt;módulo&gt;»** salen siempre en la misma fila superior izquierda del contenido (`BackLinks` en `AppLayout`); se retiraron los enlaces de vuelta que cada detalle pintaba por su cuenta (y el botón «Volver» del detalle de centro).
+- La cabecera reconoce también las rutas de edición (`/camiones/editar/…`, etc.) para no caer en «Franky App».
+
+### Fondo de sección (watermark)
+- Cada sección de oficina pinta su icono como **marca de agua grande y suave** en la esquina inferior derecha del contenido (`src/components/Layout/SeccionFondo.tsx` + `.watermark` en `AppLayout.module.css`): Panel de Control, Expedientes, Parcelas, Vehículos, Conductores, Transportes, Centros, Proveedores y Cumplimiento.
+- El icono va detrás del contenido (`.content` con `z-index: 1`), es decorativo (`aria-hidden`, `pointer-events: none`) y se oculta en móvil (`max-width: 900px`). En Inicio no se muestra.
+
+### Tablas de consulta unificadas
+- Todas las tablas de consulta (Vehículos, Conductores, Transportes, Expedientes, Centros, Proveedores y Parcelas) muestran en la columna de acciones **solo «Ver detalle →»** (`btn btn-sm btn-outline`), con el mismo aspecto.
+- Los botones de **Editar** y **Eliminar** pasan a los detalles: transporte, expediente, centro, parcela, vehículo, conductor y proveedor los muestran arriba a la derecha, en el mismo sitio. Al borrar se vuelve al listado; si el registro tiene transportes/expedientes asociados, se muestra el error en el propio detalle.
+- Vehículos y conductores estrenan `DELETE /camiones/{matricula}` y `DELETE /camioneros/{dni}` en el backend (`CamionApplicationService`/`CamioneroApplicationService` y sus controladores). Proveedores ya tenía endpoint de borrado.
+- La tabla de Parcelas usa ahora la tabla común (`.table` / `.table-wrapper`) y los estados EUDR como badges.
+- Nuevo estilo `.btn-outline-danger` en `App.css` para el botón de eliminar de las cabeceras de detalle.
+- La cabecera de Parcelas (descripción + «+ Nueva parcela») solo se muestra en el listado, no en el detalle de parcela.
+
+### Parcelas: misma estética que el resto
+- La página de Parcelas deja las pestañas, usa el encabezado común (`.page-container` + `.page-header`) con la descripción y un botón **«+ Nueva parcela»** que lleva a la nueva pantalla de alta.
+- Nueva ruta **`/parcelas/nueva`** (`src/pages/NuevaParcelaPage.tsx`): una sola página con dos botones arriba, **Desde catastro** / **Importar desde GIS**, que cambian el contenido, igual que las pestañas de «Nuevo vehículo». Las rutas antiguas siguen funcionando.
+- La lista se ve en `/parcelas/tabla` (opción «Consultar» del menú). El alta tiene **«← Volver al menú»** y **«← Volver a parcelas»**.
+- En el sidebar y en el menú de Inicio, la opción de alta pasa a ser una sola: **«Nueva parcela»**.
+
+### Sidebar con submenús
+- En las páginas con menú (roles de oficina), cada opción del sidebar es ahora un **botón que despliega un submenú** igual que en Inicio: «Consultar» más las acciones de creación del módulo (nuevo expediente, nueva parcela, vehículo, conductor, transporte, centro, proveedor).
+- El submenú se cierra al elegir una opción o al volver a pulsar el módulo, y solo hay uno abierto a la vez. «Inicio» sigue navegando directamente y los menús de conductor/agente no cambian.
+
+### Vehículos: camiones y remolques
+- La sección "Camiones" pasa a llamarse **Vehículos** (sidebar, cabecera, Inicio y títulos), sin cambiar las rutas `/camiones`.
+- Formulario de alta con **dos pestañas**: "Camiones" y "Remolques"; el tipo se guarda en el nuevo campo `tipo` (`CAMION` / `REMOLQUE`, por defecto `CAMION`).
+- Listado de vehículos con columna **Tipo** (badge) y detalle adaptado según sea camión o remolque.
+- Formularios de transporte (alta y edición): el remolque se elige de un **desplegable** con los remolques activos; el desplegable de camión ya no muestra remolques.
+- En el alta/edición de un camión, el remolque asignado también se elige de la lista de remolques.
+- **Marca y modelo no son obligatorios para remolques** (solo la matrícula); en los camiones siguen siendo obligatorios.
+- Panel de Control: "Camiones activos", capacidad media y flota por marca excluyen los remolques.
+- Backend (`vegapunk`): migración `V202611100001__add_tipo_to_camiones.sql`, campo `tipo` en dominio, DTOs, entidad JPA y mapper.
+- CSS: nuevo `src/styles/CamionFormPage.module.css` (pestañas) y clase `.badge-info` en `App.css`.
+- Tests: 164/164 OK (nuevo caso de guardado de remolque desde la pestaña).
+
+### Login mockup y "Mi perfil"
+- Nueva página `/login` (`src/pages/LoginPage.tsx` + `LoginPage.module.css`): **desplegable de roles** (sin usuarios ni credenciales) con la descripción de lo que puede hacer el rol elegido y botón **Entrar**.
+- Fondo de la pantalla: mapa topográfico con curvas de nivel, parcelas y una **ruta punteada** (mismo lenguaje visual que el sidebar), en SVG dentro de la propia página.
+- `src/features/auth/mockRoles.ts`: roles con su descripción y datos mockup del perfil, etiquetas de rol y `getRol`.
+- El selector de rol desaparece de la cabecera; en su lugar hay un botón **Mi perfil** desplegable con nombre, rol, cargo, email, teléfono y DNI, y **Cerrar sesión** (vuelve a `/login`).
+- Guardia de sesión en `App.tsx`: sin sesión (`franky.sesion` en `sessionStorage`) cualquier ruta redirige a `/login`.
+- Se mantienen los selectores de vista previa (DIOS) y de conductor.
+
+### Inicio y sidebar: transición del menú
+- Al elegir una opción del menú de Inicio, la tarjeta de módulos anima su salida hacia el sidebar y navega tras la transición.
+- Al entrar en Inicio, el menú aparece desde el lateral (sensación de venir del sidebar); al salir de Inicio, la navegación del sidebar entra animada. Respeta `prefers-reduced-motion`.
+
+### Transportes: nombre persistente y listado
+- **Backend** (`vegapunk`): el nombre del transporte se persiste de extremo a extremo (migración `V202611100002__add_nombre_to_transportes.sql`, campo en request/response, dominio `Transporte`, `TransporteDbo`, `TransporteMapper`, `TransporteApplicationService` y test de dominio). Requiere reiniciar el backend para aplicar la migración.
+- Formulario de transporte (`TransporteFormPage`): campo **Nombre** (alta y edición).
+- Tabla de transportes: quitadas las columnas «Código Trazabilidad», «Camión» y «Camionero»; en su lugar se muestra **Nombre** (enlaza al detalle; si no hay nombre, `TRANSPORTE #<id>`).
+- Los nombres de transporte se muestran y se guardan siempre en mayúsculas (tabla, detalle, PDF y formularios).
+
+## [0.4.1] — 2026-11-10
+
+### Transportes: filtros por fecha y layout del listado
+- Filtro por fecha de carga (input `date`) con botón "Ver todas" y ordenación por fecha (más recientes/más antiguos primero); la exportación CSV exporta lo visible tras filtrar.
+- `CalendarWidget` movido arriba del listado, centrado y **fijo** (`position: sticky`) al hacer scroll.
+- Botones "Exportar CSV" y "+ Nuevo transporte" centrados y más grandes.
+- Tabla a ancho completo (el calendario ya no ocupa columna lateral), con fila "No hay transportes en la fecha seleccionada" cuando el filtro no tiene resultados.
+- Estilos nuevos en `src/styles/TransportesPage.module.css` (acciones, filtros, calendario fijo).
+- Tests: orden por defecto y filtrado por fecha en `TransportesPage.test.tsx` (163/163 OK).
+
+### Básculas: volcado local y respuesta inmediata sin timeouts
+- `public/basculas-es.json`: volcado de básculas de OSM para Castilla y León (generado con Nominatim por teselas: etiquetas de pesaje + nombres `báscula`/`pesaje`), servido como estático por la propia app.
+- `fetchBasculasCercanas` responde **al instante** desde el volcado local cuando cubre el corredor; si el volcado existe pero la zona no está cubierta, devuelve vacío **sin consultar fuentes en vivo** (cero timeouts en rutas nuevas).
+- Photon/Overpass/Nakordoni quedan solo como respaldo cuando el volcado no está disponible; errores legibles en vez de `Failed to fetch`.
+- Caché: se reutiliza la de consultas en vivo anteriores; se mantiene lectura del formato v4.

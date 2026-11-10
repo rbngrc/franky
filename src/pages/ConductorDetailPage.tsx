@@ -1,19 +1,50 @@
-import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useCamionero } from '../features/camioneros/hooks/useCamionero';
+import { deleteCamionero } from '../features/camioneros/api/camioneroApiService';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
 export const ConductorDetailPage = () => {
   const { dni } = useParams<{ dni: string }>();
+  const navigate = useNavigate();
   const { camionero, isLoading, error } = useCamionero(dni);
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   if (isLoading) return <LoadingIndicator />;
   if (error) return <p className="text-danger" style={{ padding: '1rem' }}>{error}</p>;
   if (!camionero) return <p style={{ padding: '1rem' }}>Conductor no encontrado.</p>;
 
+  const handleDelete = async () => {
+    try {
+      await deleteCamionero(camionero.dni);
+      navigate('/conductores');
+    } catch (err: unknown) {
+      setConfirmDelete(false);
+      setDeleteError(
+        err instanceof Error && err.message
+          ? `No se pudo eliminar el conductor: ${err.message}`
+          : 'No se pudo eliminar el conductor. Puede tener transportes asociados.'
+      );
+    }
+  };
+
   return (
     <div className="page-container" style={{ maxWidth: '800px' }}>
-      <Link to="/conductores" className="back-link">&larr; Volver a conductores</Link>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>{camionero.nombre} {camionero.apellidos}</h1>
+      <div className="detail-header" style={{ marginBottom: '1.5rem' }}>
+        <h1 className="page-title" style={{ margin: 0 }}>{camionero.nombre} {camionero.apellidos}</h1>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Link to={`/conductores/editar/${encodeURIComponent(camionero.dni)}`} className="btn btn-primary btn-sm">
+            Editar
+          </Link>
+          <button onClick={() => setConfirmDelete(true)} className="btn btn-outline-danger btn-sm">
+            Eliminar
+          </button>
+        </div>
+      </div>
+
+      {deleteError && <div className="error-box" style={{ marginBottom: '1rem' }}>{deleteError}</div>}
 
       <div className="card card-body">
         <div className="detail-grid">
@@ -48,9 +79,13 @@ export const ConductorDetailPage = () => {
         </div>
       </div>
 
-      <Link to={`/conductores/editar/${encodeURIComponent(camionero.dni)}`} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-        Editar conductor
-      </Link>
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar conductor"
+        message={`¿Eliminar el conductor "${camionero.nombre} ${camionero.apellidos}"? Esta acción no se puede deshacer.`}
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 };

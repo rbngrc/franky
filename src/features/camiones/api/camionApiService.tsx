@@ -16,3 +16,7 @@ export const createCamion = async (data: CamionFormData, signal?: AbortSignal): 
 export const updateCamion = async (matricula: string, data: CamionFormData, signal?: AbortSignal): Promise<Camion> => {
   return ApiClient.post<Camion>(`/camiones/${encodeURIComponent(matricula)}`, data, { signal });
 };
+
+export const deleteCamion = async (matricula: string): Promise<void> => {
+  return ApiClient.delete(`/camiones/${encodeURIComponent(matricula)}`);
+};

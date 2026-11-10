@@ -16,8 +16,8 @@ La aplicación tiene dos experiencias diferenciadas:
 ## ¿Qué hace?
 
 - **Gestión de parcelas forestales**: CRUD, localización sobre mapa SIGPAC (clic en mapa, referencia catastral manual o dibujo manual), geolocalización PostGIS, **certificaciones EUDR/PEFC/SURE** editables e **importación desde archivos GIS** (`.geojson`, `.json`, `.zip`/`.rar` con Shapefile, `.kml`, `.kmz`).
-- **Gestión de transportes**: CRUD con trazabilidad, vinculación a parcela/camión/conductor/centro/expediente, **cálculo automático de cumplimiento EUDR** por parcela, código de trazabilidad autogenerado e inmutable, remolque, exportación a **CSV/PDF** y generación de **QR** (client-side).
-- **Flota y personal**: camiones (matrícula, marca, capacidad, tara, remolque…) y conductores (DNI, carnet…).
+- **Gestión de transportes**: CRUD con trazabilidad, vinculación a parcela/camión/conductor/centro/expediente, **cálculo automático de cumplimiento EUDR** por parcela, código de trazabilidad autogenerado e inmutable, remolque, listado con **filtro por fecha y ordenación**, exportación a **CSV/PDF** y generación de **QR** (client-side).
+- **Flota y personal**: vehículos (camiones y remolques: matrícula, marca, capacidad, tara, tipo…) y conductores (DNI, carnet…).
 - **Expedientes**: CRUD con estado, importe, proveedor, fechas y transportes vinculados.
 - **Centros y proveedores**: CRUD de centros de destino y proveedores con país/región de origen.
 - **Panel de Control** (`/dashboard`): KPIs, certificaciones, toneladas por tipo/mes, superficie por provincia/municipio, transportes por destino, flota por marca, kilometraje de rutas, mapa y calendario.
@@ -115,7 +115,7 @@ La aplicación tiene dos experiencias diferenciadas:
 ## Estado actual y pendientes
 
 - `npm run typecheck`, `npm run typecheck:tests`, `npm run lint`, `npm test` (143/143) y `npm run build` pasan.
-- La autenticación está **scaffolded** (contexto, login, tipos y `ProtectedRoute`), pero `/login` no está montado y las rutas no están protegidas.
+- **Acceso**: `/login` es un mockup (selección de rol, sin credenciales ni token); la sesión se guarda en `sessionStorage` y sin ella las rutas redirigen a `/login`. La cabecera muestra **Mi perfil** y «Cerrar sesión». Siguen pendientes la autenticación real (`AuthApiService`, `ProtectedRoute` sin montar como guardia real) y el envío de token desde `ApiClient`.
 - El selector de unidad t/m³ existe pero no está montado; los formularios sólo editan toneladas.
 - La caché offline cubre transportes; no hay resolución de conflictos ni Background Sync.
 - El OCR y el QR dependen del navegador/dispositivo y siempre requieren revisión humana.

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { createTransporte, updateTransporte, fetchTransporte } from '../features/transportes/api/transporteApiService';
 import { useParcelas } from '../features/parcelas/hooks/useParcelas';
 import { useCamiones } from '../features/camiones/hooks/useCamiones';
@@ -28,6 +28,7 @@ export const TransporteFormPage = () => {
   const { expedientes } = useExpedientes();
 
   const [form, setForm] = useState({
+    nombre: '',
     parcelaId: '', camionMatricula: '', camioneroDni: '',
     fechaCarga: new Date().toISOString().split('T')[0],
     toneladasCargadas: 0, tipoMadera: 'PINO', destino: '', centroId: undefined as number | undefined,
@@ -50,6 +51,7 @@ export const TransporteFormPage = () => {
         const data = await fetchTransporte(Number(editId), ac.signal);
         if (!ac.signal.aborted) {
           setForm({
+            nombre: (data.nombre || '').toUpperCase(),
             parcelaId: data.parcelaId,
             camionMatricula: data.camionMatricula,
             camioneroDni: data.camioneroDni,
@@ -109,7 +111,8 @@ export const TransporteFormPage = () => {
   };
 
   const update = (field: string, value: string | number | boolean | null | undefined) => {
-    setForm((prev) => ({ ...prev, [field]: value }));
+    const next = field === 'nombre' && typeof value === 'string' ? value.toUpperCase() : value;
+    setForm((prev) => ({ ...prev, [field]: next }));
     if (fieldErrors[field as keyof FieldErrors]) {
       setFieldErrors((prev) => ({ ...prev, [field]: undefined }));
     }
@@ -119,14 +122,24 @@ export const TransporteFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <Link to="/transportes" className="back-link">&larr; Volver</Link>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar transporte' : 'Nuevo transporte'}
-      </h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>
+        {isEditing ? 'Datos del transporte' : 'Alta de un nuevo transporte'}
+      </p>
 
       {error && <div className="error-box">{error}</div>}
 
       <form onSubmit={handleSubmit} className="form-card">
+        <div className="form-group">
+          <label className="form-label">Nombre</label>
+          <input
+            type="text"
+            value={form.nombre}
+            onChange={(e) => update('nombre', e.target.value)}
+            className="form-input"
+            placeholder="Ej: Carga de pino norte"
+          />
+        </div>
+
         <div className="form-group">
           <label className="form-label">Parcela *</label>
           <select
@@ -150,8 +163,8 @@ export const TransporteFormPage = () => {
             className={`form-select ${fieldErrors.camionMatricula ? 'error' : ''}`}
           >
             <option value="">Seleccionar camión...</option>
-            {camiones.filter((c) => c.activo).map((c) => (
-              <option key={c.matricula} value={c.matricula}>{c.matricula} — {c.marca} {c.modelo}</option>
+            {camiones.filter((c) => c.activo && c.tipo !== 'REMOLQUE').map((c) => (
+              <option key={c.matricula} value={c.matricula}>{[c.matricula, c.marca, c.modelo].filter(Boolean).join(' — ')}</option>
             ))}
           </select>
           {fieldErrors.camionMatricula && <span className="form-error">{fieldErrors.camionMatricula}</span>}
@@ -183,7 +196,7 @@ export const TransporteFormPage = () => {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Toneladas cargadas</label>
+          <label className="form-label">Metros cúbicos cargados</label>
           <input
             type="number"
             step="0.1"
@@ -258,14 +271,17 @@ export const TransporteFormPage = () => {
         </div>
 
         <div className="form-group">
-          <label className="form-label">Remolque (matrícula)</label>
-          <input
-            type="text"
+          <label className="form-label">Remolque</label>
+          <select
             value={form.remolqueMatricula}
             onChange={(e) => update('remolqueMatricula', e.target.value)}
-            className="form-input"
-            placeholder="Ej: R-5678XYZ"
-          />
+            className="form-select"
+          >
+            <option value="">Sin remolque</option>
+            {camiones.filter((c) => c.activo && c.tipo === 'REMOLQUE').map((c) => (
+              <option key={c.matricula} value={c.matricula}>{[c.matricula, c.marca, c.modelo].filter(Boolean).join(' — ')}</option>
+            ))}
+          </select>
         </div>
 
         <details style={{ marginTop: '1rem', border: '1px solid #E8EDF2', borderRadius: '8px', padding: '0.5rem' }}>

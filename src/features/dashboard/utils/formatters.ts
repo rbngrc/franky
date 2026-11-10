@@ -1,5 +1,5 @@
-export const formatToneladas = (value: number) =>
-  `${new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(value)} t`;
+export const formatMetrosCubicos = (value: number) =>
+  `${new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(value)} m³`;
 
 export const formatHectareas = (value: number) =>
   `${new Intl.NumberFormat('es-ES', { maximumFractionDigits: 1 }).format(value)} ha`;

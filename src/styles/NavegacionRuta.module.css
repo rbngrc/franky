@@ -1,0 +1,95 @@
+.panel {
+  margin-top: 0.75rem;
+  border: 1px solid #E8EDF2;
+  border-radius: 8px;
+  background: #F5F7FA;
+  padding: 0.75rem;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.5rem;
+}
+
+.title {
+  margin: 0;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: 1px;
+  color: #0D47A1;
+}
+
+.note {
+  margin: 0.5rem 0 0;
+  font-size: 0.75rem;
+  color: #546E7A;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.5rem;
+}
+
+.label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #37474F;
+}
+
+.select {
+  min-width: 220px;
+  max-width: 100%;
+  flex: 1 1 280px;
+  padding: 0.35rem 0.5rem;
+  border: 1px solid #CFD8DC;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 0.85rem;
+  color: #263238;
+}
+
+.links {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.6rem;
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.35rem 0.7rem;
+  border: 1px solid #1565C0;
+  border-radius: 6px;
+  background: #fff;
+  color: #1565C0;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.link:hover {
+  background: #E3F2FD;
+}
+
+.linkPrimary {
+  background: #1565C0;
+  color: #fff;
+}
+
+.linkPrimary:hover {
+  background: #0D47A1;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

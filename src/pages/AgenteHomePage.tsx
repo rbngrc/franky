@@ -44,7 +44,7 @@ export const AgenteHomePage = () => {
               </div>
               <div style={{ fontSize: '0.9rem', marginTop: '0.35rem' }}>
                 <div>Destino: {t.destino || t.centroNombre || '-'}</div>
-                <div>Madera: {tipoMaderaLabel(t.tipoMadera) || t.tipoMadera} · {t.toneladasCargadas} t</div>
+                <div>Madera: {tipoMaderaLabel(t.tipoMadera) || t.tipoMadera} · {t.toneladasCargadas} m³</div>
                 <div>Parcela: {t.parcelaNombre || t.parcelaId}</div>
                 <div>Fecha: {new Date(t.fechaCarga).toLocaleDateString()}</div>
               </div>

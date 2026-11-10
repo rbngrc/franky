@@ -52,11 +52,85 @@
   padding-bottom: 1rem;
 }
 
+.navWrap {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.navWrap .tenue {
+  opacity: 0.38;
+}
+
 .nav {
+  position: relative;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
   flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  animation: menuAlSidebar 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes menuAlSidebar {
+  from {
+    opacity: 0;
+    transform: translateX(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav {
+    animation: none;
+  }
+}
+
+.navButton {
+  width: 100%;
+  background: none;
+  border: none;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.navButton.navLink::after {
+  content: none;
+}
+
+.navArrow {
+  margin-left: auto;
+  font-size: 1.1rem;
+  line-height: 1;
+  opacity: 0.5;
+}
+
+.submenu {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.2rem 0 0.35rem 2.35rem;
+}
+
+.submenuLink {
+  color: rgba(255, 255, 255, 0.65);
+  text-decoration: none;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.5rem;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.submenuLink:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #FFFFFF;
 }
 
 .navLink {

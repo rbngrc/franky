@@ -123,7 +123,7 @@ test('carga el panel de control con datos mock', async ({ page }) => {
   await page.goto('/dashboard');
   await expect(page.getByRole('main').getByRole('heading', { name: 'Panel de Control', exact: true })).toBeVisible();
   await expect(page.getByText('★ Certificaciones')).toBeVisible();
-  await expect(page.getByText('Toneladas por tipo de madera')).toBeVisible();
+  await expect(page.getByText('Metros cúbicos por tipo de madera')).toBeVisible();
   await expect(page.getByText('Evolución mensual de carga')).toBeVisible();
   await expect(page.getByText('Cumplimiento de certificaciones')).toBeVisible();
   await expect(page.getByText('Superficie por provincia')).toBeVisible();
@@ -136,7 +136,7 @@ test('carga el panel de control con datos mock', async ({ page }) => {
 test('el panel de control muestra los KPIs calculados', async ({ page }) => {
   await mockAllApis(page);
   await page.goto('/dashboard');
-  await expect(page.getByRole('main').getByText('Toneladas cargadas', { exact: true })).toBeVisible();
+  await expect(page.getByRole('main').getByText('Metros cúbicos cargados', { exact: true })).toBeVisible();
   await expect(page.getByRole('main').getByText('Parcelas', { exact: true })).toBeVisible();
   await expect(page.getByText('Cumplen EUDR', { exact: false })).toBeVisible();
 });

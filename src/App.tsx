@@ -1,9 +1,11 @@
 import { lazy, Suspense } from 'react';
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppLayout } from './components/Layout/AppLayout';
+import { LoginPage } from './pages/LoginPage';
 import { InicioPage } from './pages/InicioPage';
 import { ParcelasPage } from './pages/ParcelasPage';
 import { TablaDetalladaPage } from './pages/TablaDetalladaPage';
+import { NuevaParcelaPage } from './pages/NuevaParcelaPage';
 import { CrearParcelaPage } from './pages/CrearParcelaPage';
 import { ImportarParcelaGisPage } from './pages/ImportarParcelaGisPage';
 import { ParcelaDetailPage } from './pages/ParcelaDetailPage';
@@ -37,12 +39,28 @@ const ConductorEscanearPage = lazy(() => import('./pages/ConductorEscanearPage')
 const AgenteHomePage = lazy(() => import('./pages/AgenteHomePage'));
 const AgenteEscanearPage = lazy(() => import('./pages/AgenteEscanearPage'));
 
+const haySesion = () => {
+  try {
+    return sessionStorage.getItem('franky.sesion') === '1';
+  } catch {
+    // sin almacenamiento disponible
+    return false;
+  }
+};
+
 function App() {
+  const { pathname } = useLocation();
+
+  if (pathname !== '/login' && !haySesion()) return <Navigate to="/login" replace />;
+
   return (
     <ErrorBoundary>
       <Routes>
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/" element={<AppLayout />}>
           <Route index element={<InicioPage />} />
+
+          <Route path="parcelas/nueva" element={<ErrorBoundary><NuevaParcelaPage /></ErrorBoundary>} />
 
           <Route path="parcelas" element={<ParcelasPage />}>
             <Route index element={<Navigate to="tabla" replace />} />

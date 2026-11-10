@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import QRCode from 'qrcode';
 import { jsPDF } from 'jspdf';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import { useTransporte } from '../features/transportes/hooks/useTransporte';
 import type { Transporte } from '../features/transportes/types/transporte.types';
 import { LoadingIndicator } from '../components/LoadingIndicator';
-import { updateTransporte } from '../features/transportes/api/transporteApiService';
+import { ConfirmDialog } from '../components/ConfirmDialog';
+import { updateTransporte, deleteTransporte } from '../features/transportes/api/transporteApiService';
 import { useRole } from '../features/config/RoleContext';
 import { useParcela } from '../features/parcelas/hooks/useParcela';
 import { useCentro } from '../features/centros/hooks/useCentro';
@@ -16,9 +17,14 @@ import { useCamioneros } from '../features/camioneros/hooks/useCamioneros';
 import { useCentros } from '../features/centros/hooks/useCentros';
 import { useExpedientes } from '../features/expedientes/hooks/useExpedientes';
 import { RoutingMachine } from '../features/transportes/components/RoutingMachine';
+import { NavegacionRuta } from '../features/transportes/components/NavegacionRuta';
+import { BasculasCapa } from '../features/basculas/components/BasculasCapa';
+import { BasculasLista } from '../features/basculas/components/BasculasLista';
+import { useBasculasRuta } from '../features/basculas/hooks/useBasculasRuta';
 import { TIPO_MADERA_OPTIONS, tipoMaderaLabel } from '../constants/madera';
 import { parseWktCenter } from '../lib/geojson';
 import { applyDefaultLeafletIcon } from '../lib/leafletIcon';
+import navegacionStyles from '../styles/NavegacionRuta.module.css';
 
 applyDefaultLeafletIcon();
 
@@ -43,6 +49,7 @@ const QRCanvas: React.FC<{ text: string }> = ({ text }) => {
 
 export const TransporteDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { isConductor, isAgenteForestal } = useRole();
   const { transporte, isLoading, error, reload } = useTransporte(id ? Number(id) : undefined);
   const { parcela } = useParcela(transporte?.parcelaId);
@@ -54,6 +61,7 @@ export const TransporteDetailPage = () => {
   const { expedientes } = useExpedientes();
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [editForm, setEditForm] = useState({
     nombre: '',
     parcelaId: '', camionMatricula: '', camioneroDni: '',
@@ -71,6 +79,15 @@ export const TransporteDetailPage = () => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [lightboxFoto, setLightboxFoto] = useState<string | null>(null);
   const [routeInfo, setRouteInfo] = useState<{ distanceKm: number; durationMin: number } | null>(null);
+  const [routeCoords, setRouteCoords] = useState<[number, number][] | null>(null);
+  const [showBasculas, setShowBasculas] = useState(false);
+  const [showGps, setShowGps] = useState(false);
+  const {
+    basculas,
+    basculasCercanas,
+    isLoading: basculasLoading,
+    error: basculasError,
+  } = useBasculasRuta(routeCoords, showBasculas || showGps);
 
   const copyTraceabilityCode = async () => {
     if (!transporte?.codigoTrazabilidad) return;
@@ -98,7 +115,7 @@ export const TransporteDetailPage = () => {
   const startEditing = () => {
     if (!transporte) return;
     setEditForm({
-      nombre: transporte.nombre || '',
+      nombre: (transporte.nombre || '').toUpperCase(),
       parcelaId: transporte.parcelaId,
       camionMatricula: transporte.camionMatricula,
       camioneroDni: transporte.camioneroDni,
@@ -133,7 +150,18 @@ export const TransporteDetailPage = () => {
     }
   };
 
-  const ef = (field: string, value: string | number | boolean | null | undefined) => setEditForm((p) => ({ ...p, [field]: value }));
+  const ef = (field: string, value: string | number | boolean | null | undefined) =>
+    setEditForm((p) => ({ ...p, [field]: field === 'nombre' && typeof value === 'string' ? value.toUpperCase() : value }));
+
+  const handleDelete = async () => {
+    if (!transporte) return;
+    try {
+      await deleteTransporte(transporte.id);
+      navigate('/transportes');
+    } catch {
+      // error silencioso
+    }
+  };
 
   if (isLoading) return <LoadingIndicator />;
   if (error) {
@@ -195,12 +223,12 @@ export const TransporteDetailPage = () => {
     y += 8;
 
     writeSection('DATOS DEL TRANSPORTE');
-    writeField('Nombre:', transporte.nombre || `Transporte #${transporte.id}`);
+    writeField('Nombre:', (transporte.nombre || `Transporte #${transporte.id}`).toUpperCase());
     writeField('Código trazabilidad:', transporte.codigoTrazabilidad);
     writeField('Camión:', transporte.camionMatricula + (transporte.camionMarca ? ` (${transporte.camionMarca})` : ''));
     writeField('Camionero:', transporte.camioneroNombre || transporte.camioneroDni);
     writeField('Fecha de carga:', fmtDate(transporte.fechaCarga));
-    writeField('Toneladas:', transporte.toneladasCargadas ? `${transporte.toneladasCargadas} t` : '??');
+    writeField('Metros cúbicos:', transporte.toneladasCargadas ? `${transporte.toneladasCargadas} m³` : '??');
     writeField('Tipo de madera:', tipoMaderaLabel(transporte.tipoMadera) || '??');
     writeField('Destino:', transporte.centroNombre || transporte.destino || '??');
     y += 3;
@@ -257,12 +285,11 @@ export const TransporteDetailPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '900px' }}>
-      <Link
-        to={isConductor ? '/conductor' : isAgenteForestal ? '/agente' : '/transportes'}
-        className="back-link"
-      >
-        &larr; {isConductor ? 'Volver a mi trabajo' : isAgenteForestal ? 'Volver al panel del agente' : 'Volver a transportes'}
-      </Link>
+      {(isConductor || isAgenteForestal) && (
+        <Link to={isConductor ? '/conductor' : '/agente'} className="back-link">
+          &larr; {isConductor ? 'Volver a mi trabajo' : 'Volver al panel del agente'}
+        </Link>
+      )}
 
       <div className="detail-header" style={{ marginBottom: '1.5rem' }}>
         <div style={{ flex: 1 }}>
@@ -277,7 +304,7 @@ export const TransporteDetailPage = () => {
             />
           ) : (
             <h1 className="page-title" style={{ margin: 0 }}>
-              {transporte.nombre || `Transporte #${transporte.id}`}
+              {(transporte.nombre || `Transporte #${transporte.id}`).toUpperCase()}
             </h1>
           )}
           <div style={{
@@ -315,9 +342,14 @@ export const TransporteDetailPage = () => {
           </div>
         </div>
         {!editing && (
-          <button onClick={startEditing} className="btn btn-primary btn-sm">
-            Editar
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button onClick={startEditing} className="btn btn-primary btn-sm">
+              Editar
+            </button>
+            <button onClick={() => setConfirmDelete(true)} className="btn btn-outline-danger btn-sm">
+              Eliminar
+            </button>
+          </div>
         )}
       </div>
 
@@ -350,7 +382,7 @@ export const TransporteDetailPage = () => {
                 <label className="form-label">Camión *</label>
                 <select value={editForm.camionMatricula} onChange={(e) => ef('camionMatricula', e.target.value)} className="form-select">
                   <option value="">Seleccionar camión...</option>
-                  {camiones.filter((c) => c.activo).map((c) => <option key={c.matricula} value={c.matricula}>{c.matricula} {c.marca} {c.modelo}</option>)}
+                  {camiones.filter((c) => c.activo && c.tipo !== 'REMOLQUE').map((c) => <option key={c.matricula} value={c.matricula}>{c.matricula} {c.marca} {c.modelo}</option>)}
                 </select>
               </div>
               <div className="form-group">
@@ -365,7 +397,7 @@ export const TransporteDetailPage = () => {
                 <input type="date" value={editForm.fechaCarga} onChange={(e) => ef('fechaCarga', e.target.value)} className="form-input" />
               </div>
               <div className="form-group">
-                <label className="form-label">Toneladas cargadas</label>
+                <label className="form-label">Metros cúbicos cargados</label>
                 <input type="number" step="0.1" value={editForm.toneladasCargadas || ''} onChange={(e) => ef('toneladasCargadas', Number(e.target.value))} className="form-input" />
               </div>
               <div className="form-group">
@@ -411,13 +443,17 @@ export const TransporteDetailPage = () => {
                 </select>
               </div>
               <div className="form-group">
-                <label className="form-label">Remolque (matrícula)</label>
-                <input
-                  type="text"
+                <label className="form-label">Remolque</label>
+                <select
                   value={editForm.remolqueMatricula}
                   onChange={(e) => ef('remolqueMatricula', e.target.value)}
-                  className="form-input"
-                />
+                  className="form-select"
+                >
+                  <option value="">Sin remolque</option>
+                  {camiones.filter((c) => c.activo && c.tipo === 'REMOLQUE').map((c) => (
+                    <option key={c.matricula} value={c.matricula}>{[c.matricula, c.marca, c.modelo].filter(Boolean).join(' — ')}</option>
+                  ))}
+                </select>
               </div>
               <div className="form-group">
                 <label className="form-label">Referencia catastral de la parcela</label>
@@ -511,8 +547,8 @@ export const TransporteDetailPage = () => {
                   <div className="detail-value">{new Date(transporte.fechaCarga).toLocaleDateString()}</div>
                 </div>
                 <div className="detail-item">
-                  <div className="detail-label">Toneladas</div>
-                  <div className="detail-value">{transporte.toneladasCargadas ? `${transporte.toneladasCargadas} t` : <span className="text-muted">(vacío)</span>}</div>
+                  <div className="detail-label">Metros cúbicos</div>
+                  <div className="detail-value">{transporte.toneladasCargadas ? `${transporte.toneladasCargadas} m³` : <span className="text-muted">(vacío)</span>}</div>
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Tipo de madera</div>
@@ -555,7 +591,30 @@ export const TransporteDetailPage = () => {
                 </div>
                 <div className="detail-item">
                   <div className="detail-label">Geolocalización (parcela)</div>
-                  <div className="detail-value" style={{ fontSize: '0.8rem', wordBreak: 'break-all' }}>{transporte.parcelaWktGeolocalizacion || <span className="text-muted">(vacío)</span>}</div>
+                  {transporte.parcelaWktGeolocalizacion ? (
+                    <details style={{ marginTop: '0.25rem' }}>
+                      <summary style={{ cursor: 'pointer', fontSize: '0.85rem', color: '#1565C0' }}>
+                        Ver geometría ({transporte.parcelaWktGeolocalizacion.length.toLocaleString('es-ES')} caracteres)
+                      </summary>
+                      <pre
+                        style={{
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-all',
+                          backgroundColor: '#f0f0f0',
+                          padding: '0.5rem',
+                          borderRadius: '4px',
+                          fontSize: '0.8rem',
+                          marginTop: '0.25rem',
+                          maxHeight: '12rem',
+                          overflowY: 'auto',
+                        }}
+                      >
+                        {transporte.parcelaWktGeolocalizacion}
+                      </pre>
+                    </details>
+                  ) : (
+                    <div className="detail-value"><span className="text-muted">(vacío)</span></div>
+                  )}
                 </div>
               </div>
             </>
@@ -653,7 +712,35 @@ export const TransporteDetailPage = () => {
 
       {showRoute && (
         <div style={{ marginTop: '1.5rem' }}>
-          <h3 style={{ marginBottom: '0.75rem' }}>Ruta parcela → destino</h3>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+            <h3 style={{ margin: 0 }}>Ruta parcela → destino</h3>
+            <div className={navegacionStyles.actions}>
+              <button
+                type="button"
+                onClick={() => setShowGps((prev) => !prev)}
+                className={`btn btn-sm ${showGps ? 'btn-primary' : 'btn-secondary'}`}
+              >
+                {showGps ? 'Ocultar GPS' : 'Cargar en GPS'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowBasculas((prev) => !prev)}
+                disabled={!routeCoords}
+                className={`btn btn-sm ${showBasculas ? 'btn-primary' : 'btn-secondary'}`}
+              >
+                {showBasculas ? `Ocultar básculas${basculasCercanas.length ? ` (${basculasCercanas.length})` : ''}` : 'Mostrar básculas'}
+              </button>
+            </div>
+          </div>
+          {showGps && (
+            <NavegacionRuta
+              origen={parcelaCenter!}
+              destino={centroPos!}
+              basculas={basculasCercanas}
+              nombreOrigen={transporte.parcelaNombre || transporte.parcelaId}
+              nombreDestino={transporte.centroNombre || transporte.destino}
+            />
+          )}
           {routeInfo && (
             <div style={{ marginBottom: '0.5rem', fontSize: '0.9rem', color: '#455A64' }}>
               <strong>{routeInfo.distanceKm.toFixed(1)} km</strong> • <strong>{Math.round(routeInfo.durationMin)} min</strong> (estimado)
@@ -664,9 +751,19 @@ export const TransporteDetailPage = () => {
               <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
               <Marker position={parcelaCenter!}><Popup>Parcela: {transporte.parcelaNombre || transporte.parcelaId}</Popup></Marker>
               <Marker position={centroPos!}><Popup>Destino: {transporte.centroNombre || transporte.destino}</Popup></Marker>
-              <RoutingMachine waypoints={routeWaypoints!} onRouteFound={setRouteInfo} />
+              <RoutingMachine waypoints={routeWaypoints!} onRouteFound={setRouteInfo} onRouteGeometry={setRouteCoords} />
+              {showBasculas && <BasculasCapa basculas={basculas} />}
             </MapContainer>
           </div>
+          {showBasculas && (
+            <BasculasLista
+              basculas={basculas}
+              isLoading={basculasLoading}
+              error={basculasError}
+              origen={parcelaCenter}
+              destino={centroPos}
+            />
+          )}
         </div>
       )}
 
@@ -700,6 +797,14 @@ export const TransporteDetailPage = () => {
           />
         </div>
       )}
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar transporte"
+        message="¿Eliminar este transporte? Esta acción no se puede deshacer."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 };

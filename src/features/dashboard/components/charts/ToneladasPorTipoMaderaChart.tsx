@@ -9,7 +9,7 @@ import {
   Cell,
 } from 'recharts';
 import { ChartCard } from '../ChartCard';
-import { formatToneladas, PALETTE } from '../../utils/formatters';
+import { formatMetrosCubicos, PALETTE } from '../../utils/formatters';
 import type { LabelValue } from '../../types/dashboard.types';
 
 interface Props {
@@ -22,8 +22,8 @@ export const ToneladasPorTipoMaderaChart = ({ data }: Props) => {
 
   return (
     <ChartCard
-      title="Toneladas por tipo de madera"
-      subtitle={total > 0 ? `Total: ${formatToneladas(total)}` : undefined}
+      title="Metros cúbicos por tipo de madera"
+      subtitle={total > 0 ? `Total: ${formatMetrosCubicos(total)}` : undefined}
       isEmpty={isEmpty}
       tall={data.length > 6}
     >
@@ -33,7 +33,7 @@ export const ToneladasPorTipoMaderaChart = ({ data }: Props) => {
           <XAxis type="number" tick={{ fontSize: 11 }} stroke="#90A4AE" />
           <YAxis type="category" dataKey="label" width={90} tick={{ fontSize: 11 }} stroke="#90A4AE" />
           <Tooltip
-            formatter={(v: unknown) => formatToneladas(Number(v))}
+            formatter={(v: unknown) => formatMetrosCubicos(Number(v))}
             contentStyle={{ borderRadius: 8, border: '1px solid #E8EDF2', fontSize: '0.8rem' }}
           />
           <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>

@@ -58,13 +58,13 @@ describe('DashboardPage', () => {
 
   it('renders the title', () => {
     renderDashboard();
-    expect(screen.getByText('Panel de Control')).toBeInTheDocument();
+    expect(screen.getByText('Estadísticas del sistema de gestión forestal y certificaciones')).toBeInTheDocument();
   });
 
   it('displays the KPI grid', () => {
     renderDashboard();
     expect(screen.getByText('Parcelas')).toBeInTheDocument();
-    expect(screen.getByText('Toneladas cargadas')).toBeInTheDocument();
+    expect(screen.getByText('Metros cúbicos cargados')).toBeInTheDocument();
     expect(screen.getByText('Camiones activos')).toBeInTheDocument();
   });
 
@@ -76,7 +76,7 @@ describe('DashboardPage', () => {
 
   it('renders the charts sections', () => {
     renderDashboard();
-    expect(screen.getByText('Toneladas por tipo de madera')).toBeInTheDocument();
+    expect(screen.getByText('Metros cúbicos por tipo de madera')).toBeInTheDocument();
     expect(screen.getByText('Evolución mensual de carga')).toBeInTheDocument();
     expect(screen.getByText('Cumplimiento de certificaciones')).toBeInTheDocument();
     expect(screen.getByText('Superficie por provincia')).toBeInTheDocument();

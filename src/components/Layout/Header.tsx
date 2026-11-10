@@ -1,22 +1,31 @@
-import { useLocation, Link } from 'react-router-dom';
-import { useRole, type UserRole, type PreviewRole } from '../../features/config/RoleContext';
+import { useState } from 'react';
+import { useLocation, useNavigate, Link } from 'react-router-dom';
+import { useRole, type PreviewRole } from '../../features/config/RoleContext';
 import { useCamioneros } from '../../features/camioneros/hooks/useCamioneros';
 import { ConnectionStatus } from '../../features/pwa/components/ConnectionStatus';
+import { ROLE_LABELS, getRol } from '../../features/auth/mockRoles';
 import styles from '../../styles/Header.module.css';
 
 const routeLabels: Record<string, string> = {
   '/': 'Inicio',
   '/conductor': 'Escáner conductor',
+  '/dashboard': 'Panel de Control',
   '/parcelas/tabla': 'Parcelas',
-  '/parcelas/crear-sigpac': 'Nueva parcela SIGPAC',
-  '/camiones': 'Camiones',
-  '/camiones/nuevo': 'Nuevo camión',
+  '/parcelas/nueva': 'Nueva parcela',
+  '/parcelas/crear-sigpac': 'Nueva parcela desde catastro',
+  '/parcelas/importar-gis': 'Nueva parcela desde GIS',
+  '/expedientes': 'Expedientes',
+  '/expedientes/nuevo': 'Nuevo expediente',
+  '/camiones': 'Vehículos',
+  '/camiones/nuevo': 'Nuevo vehículo',
   '/conductores': 'Conductores',
   '/conductores/nuevo': 'Nuevo conductor',
   '/transportes': 'Transportes',
   '/transportes/nuevo': 'Nuevo transporte',
   '/centros': 'Centros',
   '/centros/nuevo': 'Nuevo centro',
+  '/proveedores': 'Proveedores',
+  '/proveedores/nuevo': 'Nuevo proveedor',
   '/eudr': 'Cumplimiento Certificaciones',
 };
 
@@ -25,20 +34,51 @@ const breadcrumbMap: Record<string, string> = {
   '/parcelas/crear-sigpac': '/parcelas',
 };
 
+const editLabels: Array<[string, string]> = [
+  ['/camiones/editar/', 'Editar vehículo'],
+  ['/conductores/editar/', 'Editar conductor'],
+  ['/transportes/editar/', 'Editar transporte'],
+  ['/expedientes/editar/', 'Editar expediente'],
+  ['/centros/editar/', 'Editar centro'],
+  ['/proveedores/editar/', 'Editar proveedor'],
+];
+
 export const Header = () => {
   const location = useLocation();
   const label =
     routeLabels[location.pathname] ||
+    editLabels.find(([prefix]) => location.pathname.startsWith(prefix))?.[1] ||
     (location.pathname.startsWith('/conductor/escanear/') ? 'Escáner conductor' : 'Franky App');
 
   const parentPath = breadcrumbMap[location.pathname];
   const parentLabel = parentPath ? routeLabels[parentPath] : undefined;
-  const { role, setRole, isDios, previewAs, setPreviewAs, isConductor, conductorDni, setConductorDni } = useRole();
+  const { role, isDios, previewAs, setPreviewAs, isConductor, conductorDni, setConductorDni } = useRole();
   const { camioneros: conductores } = useCamioneros();
+  const navigate = useNavigate();
+  const [perfilAbierto, setPerfilAbierto] = useState(false);
+
+  const perfil = getRol(role);
+  const iniciales = perfil.nombre
+    .split(' ')
+    .map((parte) => parte[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join('')
+    .toUpperCase();
+
+  const cerrarSesion = () => {
+    try {
+      sessionStorage.removeItem('franky.sesion');
+    } catch {
+      // sin almacenamiento disponible
+    }
+    setPerfilAbierto(false);
+    navigate('/login');
+  };
 
   return (
     <header className={styles.header}>
-      <div>
+      <div className={styles.titleWrap}>
         <h1 className={styles.title}>
           <span className={styles.titleAccent}>★</span> {label}
         </h1>
@@ -49,7 +89,6 @@ export const Header = () => {
         )}
       </div>
       <div className={styles.userArea}>
-        <select value={role} onChange={(e)=>setRole(e.target.value as UserRole)} style={{padding:"4px 8px",borderRadius:4,border:"1px solid var(--color-border)"}}><option value="ADMIN_GENERAL">Admin general</option><option value="ADMIN_CHOPOS">Admin chopos</option><option value="ADMIN_FORESTAL">Admin forestal</option><option value="EMPRESA">Empresa</option><option value="CONDUCTOR">Conductor</option><option value="AGENTE_FORESTAL_OPERARIO">Agente forestal/operario</option><option value="DIOS">Dios (superusuario)</option></select>
         {isDios && (
           <select value={previewAs} onChange={(e) => setPreviewAs(e.target.value as PreviewRole)} style={{ padding: '4px 8px', borderRadius: 4, border: '1px solid var(--color-border)' }}>
             <option value="none">Sin vista previa</option>
@@ -65,6 +104,39 @@ export const Header = () => {
             ))}
           </select>
         )}
+
+        <div className={styles.perfilWrap}>
+          <button
+            type="button"
+            className={styles.perfilBoton}
+            aria-expanded={perfilAbierto}
+            onClick={() => setPerfilAbierto((abierto) => !abierto)}
+          >
+            <span className={styles.avatar}>{iniciales}</span>
+            <span>Mi perfil</span>
+            <span className={styles.perfilFlecha} aria-hidden="true">▾</span>
+          </button>
+
+          {perfilAbierto && (
+            <>
+              <div className={styles.perfilFondo} onClick={() => setPerfilAbierto(false)} />
+              <div className={styles.perfilMenu}>
+                <div className={styles.perfilNombre}>{perfil.nombre}</div>
+                <div className={styles.perfilRol}>{ROLE_LABELS[perfil.rol]}</div>
+                <div className={styles.perfilDato}><span>Cargo</span><span>{perfil.cargo}</span></div>
+                <div className={styles.perfilDato}><span>Email</span><span>{perfil.email}</span></div>
+                <div className={styles.perfilDato}><span>Teléfono</span><span>{perfil.telefono}</span></div>
+                {perfil.dni && (
+                  <div className={styles.perfilDato}><span>DNI</span><span>{perfil.dni}</span></div>
+                )}
+                <button type="button" className={styles.perfilSalir} onClick={cerrarSesion}>
+                  Cerrar sesión
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
         <ConnectionStatus />
       </div>
     </header>

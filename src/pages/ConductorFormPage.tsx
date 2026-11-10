@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { createCamionero, updateCamionero, fetchCamionero } from '../features/camioneros/api/camioneroApiService';
 import { LoadingIndicator } from '../components/LoadingIndicator';
 
@@ -85,10 +85,9 @@ export const ConductorFormPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '600px' }}>
-      <Link to="/conductores" className="back-link">&larr; Volver</Link>
-      <h1 className="page-title" style={{ marginBottom: '1.5rem' }}>
-        {isEditing ? 'Editar conductor' : 'Nuevo conductor'}
-      </h1>
+      <p className="page-desc" style={{ marginBottom: '1.5rem' }}>
+        {isEditing ? 'Datos del conductor' : 'Alta de un nuevo conductor'}
+      </p>
 
       {error && <div className="error-box">{error}</div>}
 

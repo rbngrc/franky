@@ -1,26 +1,19 @@
-import { NavLink, Outlet } from 'react-router-dom';
-import styles from '../styles/ParcelaPage.module.css';
+import { Link, Outlet, useLocation } from 'react-router-dom';
 
 export const ParcelasPage = () => {
-  const navClass = ({ isActive }: { isActive: boolean }) =>
-    `${styles.navLink} ${isActive ? styles.active : ''}`;
+  const { pathname } = useLocation();
+  const esListado = pathname === '/parcelas/tabla';
 
   return (
-    <div style={{ padding: '1rem', maxWidth: '1400px', margin: '0 auto' }}>
-      <header style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--color-border)', paddingBottom: '1rem' }}>
-        <h1 className={styles.title}>Gestión de Parcelas</h1>
-        <nav style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <NavLink to="/parcelas/tabla" className={navClass}>
-            Listado de parcelas
-          </NavLink>
-          <NavLink to="/parcelas/crear-sigpac" className={navClass}>
-            Añadir parcela desde SIGPAC
-          </NavLink>
-          <NavLink to="/parcelas/importar-gis" className={navClass}>
-            Importar desde archivo GIS
-          </NavLink>
-        </nav>
-      </header>
+    <div className="page-container">
+      {esListado && (
+        <div className="page-header">
+          <p className="page-desc">Fincas, superficies y geolocalización</p>
+          <Link to="/parcelas/nueva" className="btn btn-primary">
+            + Nueva parcela
+          </Link>
+        </div>
+      )}
 
       <Outlet />
     </div>

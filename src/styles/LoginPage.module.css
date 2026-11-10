@@ -1,99 +1,153 @@
-.container {
+.page {
+  position: relative;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top, var(--franky-bg), var(--color-neutral-100));
+  padding: 2rem 1rem;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 255, 255, 0.12) 0%, transparent 45%),
+    linear-gradient(135deg, var(--franky-blue-dark) 0%, var(--franky-blue) 100%);
+}
+
+.mapa {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
 }
 
 .card {
-  width: min(420px, 90vw);
-  background: var(--color-neutral-0);
-  border: 1px solid var(--color-neutral-200);
-  border-radius: 12px;
-  box-shadow: 0 10px 40px -20px rgba(0, 0, 0, 0.4);
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  gap: 2rem;
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 460px;
+  background: #FFFFFF;
+  border-radius: 18px;
+  border-top: 4px solid var(--franky-gold);
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+  padding: 2rem 2rem 1.5rem;
+  text-align: center;
+}
+
+.brand {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.4rem;
+  letter-spacing: 3px;
+  color: var(--franky-blue-dark);
+  line-height: 1;
+}
+
+.star {
+  color: var(--franky-gold);
+}
+
+.brandSub {
+  font-size: 0.75rem;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-top: 0.3rem;
 }
 
 .title {
   font-family: 'Bebas Neue', sans-serif;
-  font-size: 2.5rem;
-  text-align: center;
-  letter-spacing: 0.05em;
-  margin: 0;
-  color: var(--franky-primary);
+  font-size: 1.6rem;
+  letter-spacing: 1.5px;
+  color: var(--franky-blue-dark);
+  margin: 1.5rem 0 0.25rem;
 }
 
-.form {
-  display: flex;
-  flex-direction: column;
-  gap: 1.25rem;
+.subtitle {
+  margin: 0 0 1.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
 }
 
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.field label {
-  font-size: 0.875rem;
+.label {
+  display: block;
+  text-align: left;
+  font-size: 0.78rem;
   font-weight: 600;
-  color: var(--color-neutral-700);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.35rem;
 }
 
-.field input {
-  padding: 0.625rem 0.75rem;
-  border: 1px solid var(--color-neutral-300);
-  border-radius: 8px;
-  font-size: 1rem;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.field input:focus {
-  outline: none;
-  border-color: var(--franky-primary);
-  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
-}
-
-.error {
-  padding: 0.75rem;
-  border-radius: 8px;
-  background: rgba(239, 68, 68, 0.1);
-  color: var(--color-error);
-  font-size: 0.875rem;
-}
-
-.submit {
-  background: var(--franky-primary);
-  color: var(--color-neutral-0);
-  border: none;
-  border-radius: 8px;
-  padding: 0.75rem;
+.select {
+  width: 100%;
+  padding: 0.65rem 0.75rem;
+  font-family: inherit;
+  font-size: 0.95rem;
   font-weight: 600;
+  color: var(--color-text-primary);
+  background: #FFFFFF;
+  border: 1px solid #D8E1EA;
+  border-radius: 10px;
   cursor: pointer;
-  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-.submit:hover:not(:disabled) {
-  opacity: 0.95;
+.select:focus {
+  outline: none;
+  border-color: var(--franky-blue);
+  box-shadow: 0 0 0 3px rgba(21, 101, 192, 0.12);
 }
 
-.submit:active {
-  transform: scale(0.995);
+.descripcion {
+  margin-top: 0.9rem;
+  padding: 0.85rem 1rem;
+  text-align: left;
+  background: #F5F8FC;
+  border: 1px solid #E3EAF2;
+  border-radius: 10px;
 }
 
-.submit:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.descripcionRol {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--franky-blue);
+  margin-bottom: 0.25rem;
+}
+
+.descripcionTexto {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--color-text-secondary);
+}
+
+.entrar {
+  width: 100%;
+  margin-top: 1.25rem;
+  padding: 0.7rem;
+  border: none;
+  border-radius: 10px;
+  background: var(--franky-blue);
+  color: #FFFFFF;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.entrar:hover {
+  background: var(--franky-blue-dark);
 }
 
 .note {
-  font-size: 0.75rem;
-  color: var(--color-neutral-500);
-  text-align: center;
-  line-height: 1.5;
+  margin: 1rem 0 0;
+  font-size: 0.72rem;
+  color: var(--color-text-secondary);
+}
+
+@media (max-width: 600px) {
+  .card {
+    padding: 1.5rem 1rem 1.25rem;
+  }
 }

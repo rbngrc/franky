@@ -76,7 +76,7 @@ export const useDashboardStats = () => {
   const stats = useMemo(() => {
     const { parcelas: pr, camiones: cm, camioneros: cr, transportes: tr, centros: ce, proveedores: pv } = datos;
 
-    const camionesActivos = cm.filter((c) => c.activo);
+    const camionesActivos = cm.filter((c) => c.activo && c.tipo !== 'REMOLQUE');
     const camionerosActivos = cr.filter((c) => c.activo);
     const centrosActivos = ce.filter((c) => c.activo);
     const proveedoresActivos = pv.filter((c) => c.activo);
@@ -143,10 +143,10 @@ export const useDashboardStats = () => {
       { value: camionesActivos.length, label: 'Camiones activos', link: '/camiones', loading: loadingCamiones },
       { value: camionerosActivos.length, label: 'Conductores activos', link: '/conductores', loading: loadingCamioneros },
       { value: total, label: 'Transportes', link: '/transportes', loading: loadingTransportes },
-      { value: totalToneladas, label: 'Toneladas cargadas', link: '/transportes', loading: loadingTransportes, decimals: 1 },
-      { value: ratio(totalToneladas, total), label: 'Toneladas por transporte', link: '/transportes', loading: loadingTransportes, decimals: 1 },
-      { value: ratio(totalToneladas, capacityTotal), label: 'Toneladas por camión', link: '/transportes', loading: loadingTransportes || loadingCamiones, decimals: 1 },
-      { value: ratio(capacityTotal, camionesActivos.length), label: 'Capacidad media (t)', link: '/camiones', loading: loadingCamiones, decimals: 1 },
+      { value: totalToneladas, label: 'Metros cúbicos cargados', link: '/transportes', loading: loadingTransportes, decimals: 1 },
+      { value: ratio(totalToneladas, total), label: 'm³ por transporte', link: '/transportes', loading: loadingTransportes, decimals: 1 },
+      { value: ratio(totalToneladas, capacityTotal), label: 'm³ por camión', link: '/transportes', loading: loadingTransportes || loadingCamiones, decimals: 1 },
+      { value: ratio(capacityTotal, camionesActivos.length), label: 'Capacidad media (m³)', link: '/camiones', loading: loadingCamiones, decimals: 1 },
       { value: centrosActivos.length, label: 'Centros activos', link: '/centros', loading: loadingCentros },
       { value: proveedoresActivos.length, label: 'Proveedores activos', link: '/proveedores', loading: loadingProveedores },
     ];

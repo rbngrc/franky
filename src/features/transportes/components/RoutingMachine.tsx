@@ -10,12 +10,13 @@ interface RouteInfo {
 interface Props {
   waypoints: [number, number][];
   onRouteFound?: (info: RouteInfo) => void;
+  onRouteGeometry?: (coords: [number, number][]) => void;
 }
 
 const waypointsKey = (waypoints: [number, number][]) =>
   waypoints.map((wp) => `${wp[0]},${wp[1]}`).join('|');
 
-export const RoutingMachine = ({ waypoints, onRouteFound }: Props) => {
+export const RoutingMachine = ({ waypoints, onRouteFound, onRouteGeometry }: Props) => {
   const map = useMap();
   const polyRef = useRef<L.Polyline | null>(null);
   const key = waypointsKey(waypoints);
@@ -53,6 +54,8 @@ export const RoutingMachine = ({ waypoints, onRouteFound }: Props) => {
         }
 
         map.fitBounds(polyRef.current.getBounds().pad(0.2));
+
+        if (onRouteGeometry) onRouteGeometry(coords);
 
         if (onRouteFound && route.distance != null && route.duration != null) {
           onRouteFound({

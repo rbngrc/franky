@@ -50,8 +50,7 @@ export const DashboardPage = () => {
   return (
     <div className="page-container">
       <div className={styles.header}>
-        <h1 className="page-title">Panel de Control</h1>
-        <p className="page-subtitle">
+        <p className="page-desc">
           Estadísticas del sistema de gestión forestal y certificaciones
         </p>
       </div>

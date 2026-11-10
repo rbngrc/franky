@@ -1,8 +1,6 @@
-import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useExpedientes } from '../features/expedientes/hooks/useExpedientes';
 import { useProveedores } from '../features/proveedores/hooks/useProveedores';
-import { ConfirmDialog } from '../components/ConfirmDialog';
 import { estadoBadgeClass, estadoLabel } from '../constants/expediente';
 
 const formatImporte = (importe?: number | null) =>
@@ -12,29 +10,16 @@ const formatFecha = (fecha?: string | null) =>
   fecha ? new Date(fecha).toLocaleDateString() : '-';
 
 export const ExpedientesPage = () => {
-  const { expedientes, loading, error, deleteExpediente } = useExpedientes();
+  const { expedientes, loading, error } = useExpedientes();
   const { proveedores } = useProveedores();
-  const [pendingDelete, setPendingDelete] = useState<number | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const proveedorNombre = (id?: number | null) =>
     id != null ? proveedores.find((p) => p.id === id)?.nombre : undefined;
 
-  const handleDelete = async () => {
-    if (pendingDelete === null) return;
-    setDeleteError(null);
-    try {
-      await deleteExpediente(pendingDelete);
-      setPendingDelete(null);
-    } catch (e) {
-      setDeleteError(e instanceof Error ? e.message : 'Error al eliminar el expediente');
-    }
-  };
-
   return (
     <div className="page-container">
       <div className="page-header">
-        <h1 className="page-title">Expedientes</h1>
+        <p className="page-desc">Expedientes, licitaciones y proveedores</p>
         <Link to="/expedientes/nuevo" className="btn btn-primary">
           + Nuevo expediente
         </Link>
@@ -50,7 +35,6 @@ export const ExpedientesPage = () => {
       )}
 
       {error && <div className="error-box">{error}</div>}
-      {deleteError && <div className="error-box">{deleteError}</div>}
 
       {!loading && !error && expedientes.length === 0 && (
         <div className="empty-state">
@@ -96,18 +80,6 @@ export const ExpedientesPage = () => {
                     <Link to={`/expedientes/${e.id}`} className="btn btn-sm btn-outline">
                       Ver detalle →
                     </Link>
-                    {' | '}
-                    <Link to={`/expedientes/editar/${e.id}`} className="btn btn-sm btn-outline">
-                      Editar
-                    </Link>
-                    {' | '}
-                    <button
-                      type="button"
-                      onClick={() => e.id != null && setPendingDelete(e.id)}
-                      className="btn btn-sm btn-danger"
-                    >
-                      Eliminar
-                    </button>
                   </td>
                 </tr>
               ))}
@@ -115,14 +87,6 @@ export const ExpedientesPage = () => {
           </table>
         </div>
       )}
-
-      <ConfirmDialog
-        open={pendingDelete !== null}
-        title="Eliminar expediente"
-        message="¿Eliminar este expediente? Esta acción no se puede deshacer."
-        onConfirm={handleDelete}
-        onCancel={() => setPendingDelete(null)}
-      />
     </div>
   );
 };

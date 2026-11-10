@@ -1,8 +1,11 @@
-import { useParams, Link } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useExpediente } from '../features/expedientes/hooks/useExpediente';
+import { useExpedientes } from '../features/expedientes/hooks/useExpedientes';
 import { useProveedores } from '../features/proveedores/hooks/useProveedores';
 import { useTransportes } from '../features/transportes/hooks/useTransportes';
 import { LoadingIndicator } from '../components/LoadingIndicator';
+import { ConfirmDialog } from '../components/ConfirmDialog';
 import { estadoBadgeClass, estadoLabel } from '../constants/expediente';
 
 const formatFecha = (fecha?: string | null) => (fecha ? new Date(fecha).toLocaleDateString() : '—');
@@ -12,9 +15,22 @@ const formatImporte = (importe?: number | null) =>
 
 export const ExpedienteDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { expediente, isLoading, error } = useExpediente(id ? Number(id) : undefined);
+  const { deleteExpediente } = useExpedientes();
   const { proveedores } = useProveedores();
   const { transportes } = useTransportes();
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
+  const handleDelete = async () => {
+    if (!id) return;
+    try {
+      await deleteExpediente(Number(id));
+      navigate('/expedientes');
+    } catch {
+      // error silencioso
+    }
+  };
 
   if (isLoading) return <LoadingIndicator />;
   if (error) return <p className="text-danger" style={{ padding: '1rem' }}>{error}</p>;
@@ -25,8 +41,6 @@ export const ExpedienteDetailPage = () => {
 
   return (
     <div className="page-container" style={{ maxWidth: '900px' }}>
-      <Link to="/expedientes" className="back-link">&larr; Volver a expedientes</Link>
-
       <div className="detail-header" style={{ marginBottom: '1.5rem' }}>
         <div style={{ flex: 1 }}>
           <h1 className="page-title" style={{ margin: 0 }}>{expediente.codigoExpediente}</h1>
@@ -36,9 +50,14 @@ export const ExpedienteDetailPage = () => {
             </div>
           )}
         </div>
-        <Link to={`/expedientes/editar/${expediente.id}`} className="btn btn-primary btn-sm">
-          Editar
-        </Link>
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Link to={`/expedientes/editar/${expediente.id}`} className="btn btn-primary btn-sm">
+            Editar
+          </Link>
+          <button onClick={() => setConfirmDelete(true)} className="btn btn-outline-danger btn-sm">
+            Eliminar
+          </button>
+        </div>
       </div>
 
       <div className="card card-body">
@@ -134,6 +153,14 @@ export const ExpedienteDetailPage = () => {
           </div>
         )}
       </div>
+
+      <ConfirmDialog
+        open={confirmDelete}
+        title="Eliminar expediente"
+        message="¿Eliminar este expediente? Esta acción no se puede deshacer."
+        onConfirm={handleDelete}
+        onCancel={() => setConfirmDelete(false)}
+      />
     </div>
   );
 };

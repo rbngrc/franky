@@ -401,6 +401,7 @@ Digitalizar y centralizar la gestión forestal con foco en cumplimiento normativ
 
 | Ruta | Página | Descripción |
 |------|--------|-------------|
+| `/login` | LoginPage | Acceso mockup: selección de rol (sin credenciales) |
 | `/` | InicioPage | Home con módulos; conductor/agente ven su propia home |
 | `/dashboard` | DashboardPage | Panel de Control con KPIs y gráficas |
 | `/eudr` | EudrDashboardPage | Panel de cumplimiento |
@@ -439,7 +440,7 @@ Digitalizar y centralizar la gestión forestal con foco en cumplimiento normativ
 | `/agente/escanear` | AgenteEscanearPage | Escáner QR |
 | `*` | NotFoundPage | 404 |
 
-> `LoginPage` y `ProtectedRoute` existen pero todavía no están montados en el router.
+> `/login` está montado como mockup de selección de rol con guardia de sesión (`sessionStorage`); no hay autenticación real ni token. `ProtectedRoute` existe pero no se usa como guardia de rutas protegidas.
 
 ## 8. Arquitectura (Backend Hexagonal)
 
@@ -502,7 +503,7 @@ infrastructure/
 - El nombre del transporte es editable; el código de trazabilidad es autogenerado e inmutable.
 - El tipo `Provincia` del frontend está limitado a Ávila, Burgos, León y Palencia.
 - La geolocalización de una parcela no se puede modificar una vez establecida (regla de dominio).
-- **Autenticación**: `/login` no está montado, las rutas no están protegidas y `ApiClient` no envía token; el rol se selecciona en cliente.
+- **Autenticación**: `/login` es un mockup de selección de rol (sin credenciales ni token) con sesión en `sessionStorage`; no hay autenticación real, las rutas no se protegen por credenciales y `ApiClient` no envía token.
 - **Unidades**: el selector t/m³ no está montado; los formularios sólo editan toneladas aunque los tipos admiten m³.
 - **Offline**: sólo se cachean transportes; no hay resolución de conflictos ni Background Sync; la outbox sólo soporta `POST`/`PUT`.
 - **OCR/QR**: dependen de la cámara, permisos, contexto seguro y soporte del navegador (`BarcodeDetector`); requieren revisión humana.
